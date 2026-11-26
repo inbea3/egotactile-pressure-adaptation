@@ -14,7 +14,7 @@ on:
       objects:
         description: "Comma-separated object archive names (without .zip)"
         required: true
-        default: "Apple,SprayBottle,TennisBall"
+        default: "BellPepper,SamyangSpicyChickenCupNoodles"
 
 permissions:
   contents: read
@@ -31,7 +31,7 @@ jobs:
         run: python -m pip install --upgrade huggingface_hub "zarr<3" numcodecs
       - name: Download and inventory selected object archives
         env:
-          OBJECTS: ${{ github.event.inputs.objects || 'Apple,SprayBottle,TennisBall' }}
+          OBJECTS: ${{ github.event.inputs.objects || 'BellPepper,SamyangSpicyChickenCupNoodles' }}
         run: |
           python scripts/download_sample_oxt_audit.py --objects "$OBJECTS" --output results/egotactile_sample_archive_audit.json
       - name: Upload metadata-only audit report
