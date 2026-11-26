@@ -329,7 +329,8 @@ def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
     ]
     candidate_summary = {}
     for name in candidate_names:
-        detected = [ep for ep in valid if ep["candidate_onsets"][name] is not None]
+        detected = [ep for ep in valid if ep["candidate_onsets"][name]["first_onset"] is not None]
+        cycle_counts = [ep["candidate_onsets"][name]["contact_segment_count"] for ep in valid]
         covered = [
             ep for ep in detected
             if ep["candidate_onsets"][name]["first_onset"]["early_window_covered"]
