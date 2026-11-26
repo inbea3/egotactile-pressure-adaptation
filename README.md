@@ -19,7 +19,12 @@ This repository is independent of `inbea3/touch`. Do not modify that repository,
 
 ## Current status
 
-The project is at initialization. No dataset has yet been certified as suitable, and no experimental result is claimed.
+- Repository initialization is complete.
+- The 2026-11-26 desk audit identifies EgoTactile-OXT as the primary candidate, conditional on empirical metadata/sample validation.
+- TouchScale is retained as a reserve candidate; Hide-and-Seek is retained only as a separate robot-domain candidate.
+- No per-object trajectory counts have been independently computed, no full data download has been performed, and no experimental result is claimed.
+
+See [the 2026-11-26 candidate dataset audit](docs/dataset_candidate_audit_20261126.md).
 
 ## Planned workflow
 
@@ -36,4 +41,4 @@ The project is at initialization. No dataset has yet been certified as suitable,
 
 Every experiment should record its configuration, random seed, dataset version/checksum, code commit, environment, metrics, and logs. Never overwrite raw data or prior experiment outputs.
 
-See [research protocol](docs/research_protocol.md), [data audit protocol](docs/data_audit_protocol.md), and [experiment tracking policy](docs/experiment_tracking.md).
+See [research protocol](docs/research_protocol.md), [data audit protocol](docs/data_audit_protocol.md), [candidate dataset audit](docs/dataset_candidate_audit_20261126.md), and [experiment tracking policy](docs/experiment_tracking.md).
