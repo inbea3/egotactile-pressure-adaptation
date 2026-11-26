@@ -152,57 +152,64 @@ def detect_grasp_cycle_candidates(
     min_peak_distance_seconds: float = 3.0,
     rise_fraction: float = 0.20,
 ) -> dict:
-    """Exploratory pressure-peak cycle detector; not yet a frozen event label."""
+    """Exploratory 0.5 s-binned pressure-peak detector with raw-time onset refinement."""
     if len(ts) < 10 or len(total_load) != len(ts):
         return {"peak_count": 0, "cycles": []}
-    dt = float(np.median(np.diff(ts)))
-    if not np.isfinite(dt) or dt <= 0:
+    relative = ts - ts[0]
+    bin_starts = np.arange(0.0, float(relative[-1]), 0.5)
+    bin_means = []
+    for left in bin_starts:
+        mask = (relative >= left) & (relative < left + 0.5)
+        bin_means.append(float(total_load[mask].mean()) if mask.any() else np.nan)
+    bin_means = np.asarray(bin_means, dtype=np.float64)
+    valid_bins = np.isfinite(bin_means)
+    if valid_bins.sum() < 5:
         return {"peak_count": 0, "cycles": []}
-    smooth_window = max(3, int(round(0.33 / dt)))
-    if smooth_window % 2 == 0:
-        smooth_window += 1
-    smooth = np.convolve(total_load, np.ones(smooth_window) / smooth_window, mode="same")
+    if not valid_bins.all():
+        bin_means[~valid_bins] = np.interp(
+            np.flatnonzero(~valid_bins), np.flatnonzero(valid_bins), bin_means[valid_bins]
+        )
+    smooth = np.convolve(bin_means, np.ones(3) / 3.0, mode="same")
     dynamic_range = float(np.percentile(smooth, 95) - np.percentile(smooth, 10))
     if dynamic_range <= 0:
         return {"peak_count": 0, "cycles": []}
     peaks, properties = find_peaks(
         smooth,
-        distance=max(1, int(round(min_peak_distance_seconds / dt))),
+        distance=max(1, int(round(min_peak_distance_seconds / 0.5))),
         prominence=prominence_fraction * dynamic_range,
     )
+
+    def onset_for_peak(peak_bin: int, left_bin: int) -> int:
+        trough_bin = left_bin + int(np.argmin(smooth[left_bin:peak_bin + 1]))
+        baseline = float(smooth[trough_bin])
+        peak_value = float(smooth[peak_bin])
+        crossing = baseline + rise_fraction * max(0.0, peak_value - baseline)
+        trough_time = float(bin_starts[trough_bin])
+        peak_time = float(bin_starts[peak_bin] + 0.25)
+        raw_left = int(np.searchsorted(relative, trough_time, side="left"))
+        raw_right = min(len(ts), int(np.searchsorted(relative, peak_time, side="right")))
+        for i in range(raw_left, max(raw_left, raw_right - 2)):
+            if np.all(total_load[i:i + 3] >= crossing):
+                return i
+        return min(max(raw_left, raw_right - 1), len(ts) - 1)
+
+    onset_indices = []
+    for peak_pos, peak_bin in enumerate(peaks):
+        left_bin = 0 if peak_pos == 0 else int((peaks[peak_pos - 1] + peak_bin) // 2)
+        onset_indices.append(onset_for_peak(int(peak_bin), left_bin))
+
     cycles = []
-    for peak_pos, peak in enumerate(peaks):
-        left_bound = 0 if peak_pos == 0 else int((peaks[peak_pos - 1] + peak) // 2)
-        trough = left_bound + int(np.argmin(smooth[left_bound:peak + 1]))
-        base = float(smooth[trough])
-        peak_value = float(smooth[peak])
-        crossing = base + rise_fraction * max(0.0, peak_value - base)
-        onset = None
-        for i in range(trough, max(trough, peak - 2)):
-            if np.all(smooth[i:i + 3] >= crossing):
-                onset = i
-                break
-        if onset is None:
-            onset = int(peak)
-        next_onset = None
-        if peak_pos + 1 < len(peaks):
-            next_peak = int(peaks[peak_pos + 1])
-            next_left = int((peak + next_peak) // 2)
-            next_trough = next_left + int(np.argmin(smooth[next_left:next_peak + 1]))
-            next_base = float(smooth[next_trough])
-            next_cross = next_base + rise_fraction * max(0.0, float(smooth[next_peak]) - next_base)
-            for j in range(next_trough, max(next_trough, next_peak - 2)):
-                if np.all(smooth[j:j + 3] >= next_cross):
-                    next_onset = j
-                    break
-            if next_onset is None:
-                next_onset = next_peak
+    for peak_pos, peak_bin in enumerate(peaks):
+        onset = onset_indices[peak_pos]
+        next_onset = onset_indices[peak_pos + 1] if peak_pos + 1 < len(onset_indices) else None
         start_time = float(ts[onset])
         early_end = start_time + 1.0
         future_end = start_time + 3.0
         early_count = int(np.sum((ts >= start_time) & (ts < early_end)))
         future_count = int(np.sum((ts >= early_end) & (ts < future_end)))
-        window_covered = bool(ts[-1] >= future_end and (next_onset is None or ts[next_onset] >= future_end))
+        window_covered = bool(
+            ts[-1] >= future_end and (next_onset is None or float(ts[next_onset]) >= future_end)
+        )
         region_matrix = np.column_stack([region_loads[k] for k in ("thumb", "index", "middle", "ring", "little", "palm")])
         future_regions = _time_weighted_mean(ts, region_matrix, early_end, future_end)
         future_total = float(np.nansum(future_regions))
@@ -213,9 +220,9 @@ def detect_grasp_cycle_candidates(
         cycles.append({
             "cycle_index": peak_pos,
             "onset_seconds_from_recording_start": start_time - float(ts[0]),
-            "peak_seconds_from_recording_start": float(ts[peak]) - float(ts[0]),
-            "peak_total_load_N_smoothed": peak_value,
-            "local_baseline_N_smoothed": base,
+            "peak_seconds_from_recording_start": float(bin_starts[int(peak_bin)] + 0.25),
+            "peak_total_load_N_smoothed": float(smooth[int(peak_bin)]),
+            "local_baseline_N_smoothed": float(smooth[max(0, int(peak_bin) - 2)]),
             "peak_prominence_N": float(properties["prominences"][peak_pos]),
             "early_sample_count": early_count,
             "future_sample_count": future_count,
@@ -229,7 +236,6 @@ def detect_grasp_cycle_candidates(
         "minimum_peak_distance_seconds": min_peak_distance_seconds,
         "cycles": cycles,
     }
-
 
 def _strings(array) -> np.ndarray:
     return np.char.strip(np.asarray(array[:]).astype(str))
