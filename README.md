@@ -23,7 +23,7 @@ This repository is independent of `inbea3/touch`. Do not modify that repository,
 - Primary dataset is fixed: HustleHard/EgoTactile-OXT, gloved-hand pressure-only subset.
 - Hub revision pinned: `5b05f19e613758e76c330671f4c9f3c06af8af44`; 63 object ZIP archives and 3,459,799,746 total archive bytes verified by a successful metadata-only GitHub Actions run.
 - Stage 0 full audit completed: all 63 object archives, 314,100 frames, and 767 episodes were inventoried using pressure/timestamp/metadata arrays only.
-- 692 directly paired gloved-hand episodes were identified; after conservative preliminary time/signal exclusions, 688 trajectories remain. Every one of the 63 objects has at least 10 eligible trajectories, so 5-shot plus one Query is count-feasible.
+- 692 directly paired gloved-hand participant-object recordings were identified across 63 objects (62 objects have 11 recordings; Sponge has 10). Every object is count-feasible for 5-shot Support plus one independent participant Query. The synchronized master clock is valid; tactile source-clock anomalies are retained as warnings, not primary exclusions.
 - All objects have a stable 162-layout to 137-unique-physical-index mapping and finite pressure arrays. Timestamp anomalies and exclusions are documented.
 - Unit tests are passing. The official mapping note has been parsed and the 162-layout to 137-physical-sensor crosswalk passed on three objects. Six anatomical load regions are defined. Stage 1 now focuses on timestamp/pressure semantics, contact onset, and regional target construction.
 - No model has been trained and no experimental performance result is claimed.
