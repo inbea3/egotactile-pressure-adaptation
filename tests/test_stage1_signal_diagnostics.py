@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from scripts.run_stage1_signal_diagnostics import deduplicate_episode, find_sustained_onset, detect_contact_segments
+from scripts.run_stage1_signal_diagnostics import deduplicate_episode, find_sustained_onset, detect_contact_segments, detect_grasp_cycle_candidates
 
 
 class Stage1SignalDiagnosticsTests(unittest.TestCase):
@@ -38,6 +38,16 @@ class Stage1SignalDiagnosticsTests(unittest.TestCase):
         self.assertEqual(len(segments), 2)
         self.assertEqual(segments[0]["start_index"], 1)
         self.assertEqual(segments[1]["start_index"], 8)
+
+    def test_detects_five_synthetic_grasp_peaks(self):
+        ts = np.arange(0.0, 30.0, 0.067)
+        signal = np.zeros_like(ts) + 10.0
+        for center in [3, 9, 15, 21, 27]:
+            signal += 100.0 * np.exp(-0.5 * ((ts - center) / 0.8) ** 2)
+        regions = {"thumb": signal * 0.2, "index": signal * 0.2, "middle": signal * 0.2, "ring": signal * 0.1, "little": signal * 0.1, "palm": signal * 0.2}
+        result = detect_grasp_cycle_candidates(ts, signal, regions, prominence_fraction=0.15)
+        self.assertEqual(result["peak_count"], 5)
+        self.assertTrue(all(x["future_region_load_share"] is not None for x in result["cycles"]))
 
 
 if __name__ == "__main__":
