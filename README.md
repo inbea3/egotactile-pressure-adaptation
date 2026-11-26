@@ -22,11 +22,13 @@ This repository is independent of `inbea3/touch`. Do not modify that repository,
 - Repository initialization is complete.
 - Primary dataset is fixed: HustleHard/EgoTactile-OXT, gloved-hand pressure-only subset.
 - Hub revision pinned: `5b05f19e613758e76c330671f4c9f3c06af8af44`; 63 object ZIP archives and 3,459,799,746 total archive bytes verified by a successful metadata-only GitHub Actions run.
-- The frozen experimental protocol is recorded in `docs/frozen_experimental_protocol_v1.md`.
-- Unit-test workflow is passing. A small three-object archive smoke audit is currently being executed; trajectory-level counts and signal validity are not yet established.
+- Stage 0 full audit completed: all 63 object archives, 314,100 frames, and 767 episodes were inventoried using pressure/timestamp/metadata arrays only.
+- 692 directly paired gloved-hand episodes were identified; after conservative preliminary time/signal exclusions, 688 trajectories remain. Every one of the 63 objects has at least 10 eligible trajectories, so 5-shot plus one Query is count-feasible.
+- All objects have a stable 162-layout to 137-unique-physical-index mapping and finite pressure arrays. Timestamp anomalies and exclusions are documented.
+- Unit tests are passing. Stage 1 is now focused on validating the official mapping note, timestamp semantics, contact onset, and regional target construction.
 - No model has been trained and no experimental performance result is claimed.
 
-See [the 2026-11-26 candidate dataset audit](docs/dataset_candidate_audit_20261126.md), [pinned dataset revision manifest](docs/dataset_revision_manifest_20261126.md), and [frozen experimental protocol](docs/frozen_experimental_protocol_v1.md).
+See [the pinned dataset revision manifest](docs/dataset_revision_manifest_20261126.md), [frozen experimental protocol](docs/frozen_experimental_protocol_v1.md), [Stage 0 sample audit](docs/stage0_sample_pressure_audit_20261126.md), and [Stage 0 full inventory](docs/stage0_full_inventory_20261126.md).
 
 ## Planned workflow
 
