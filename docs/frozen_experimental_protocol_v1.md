@@ -57,7 +57,11 @@ The 5-shot gate requires at least six independent eligible trajectories for an o
 
 ## 5. Contact onset and windowing (Stage 1)
 
-Use actual timestamps, not an assumed constant frame rate. Reconstruct the paper's per-sensor 5 N noise filter only as a candidate preprocessing rule. It is not automatically the whole-hand contact-onset detector.
+Use actual tactile timestamps, not an assumed constant frame rate. Initial archive inspection found repeated tactile timestamps whose adjacent pressure vectors were identical in all repeated-timestamp rows in the three sampled objects. Therefore, within each episode, collapse consecutive rows with the same tactile timestamp only when their pressure vectors are exactly identical; retain one pressure sample at that timestamp. If equal timestamps carry different pressure vectors, flag the episode and do not silently average them. Process episodes independently because timestamps may reset at episode boundaries. Report duplicate, conflicting, and negative intervals. Use zero-order-hold time weighting over the resulting unique tactile timestamps, with an explicitly documented endpoint convention. Do not sort timestamps globally.
+
+Reconstruct the paper's per-sensor 5 N noise filter only as a candidate preprocessing rule. It is not automatically the whole-hand contact-onset detector.
+
+Before windowing, validate timestamp semantics using the frozen duplicate rule above. Require no negative within-episode tactile intervals, no conflicting duplicate-time pressure samples, and a valid monotonic frame/tactile time relationship. Episodes failing these checks are flagged with reasons, not silently repaired.
 
 Define and compare:
 - per-sensor denoising/activation threshold;
