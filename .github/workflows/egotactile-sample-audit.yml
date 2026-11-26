@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/download_sample_oxt_audit.py"
       - "scripts/inspect_oxt_archive.py"
+      - "scripts/audit_oxt_zarr.py"
       - "scripts/__init__.py"
       - ".github/workflows/egotactile-sample-audit.yml"
   workflow_dispatch:
