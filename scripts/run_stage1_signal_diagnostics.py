@@ -231,7 +231,7 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
             candidates = {}
             cycle_conditions = {
                 "any_sensor_gt_5N_3samples": (active_count >= 1, active_count == 0),
-                "two_sensors_gt_5N_3samples": (active_count >= 2, active_count == 0),
+                "two_sensors_gt_5N_3samples": (active_count >= 2, active_count < 2),
                 "total_load_gt_5N_3samples": (total_raw > 5.0, total_raw < 2.5),
                 "sum_excess_over_5N_gt_5N_3samples": (total_excess > 5.0, total_excess < 2.5),
             }
@@ -276,6 +276,18 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
                 "region_load_p95_N": {
                     key: float(np.percentile(value, 95)) for key, value in regions.items()
                 },
+                "time_binned_pressure_trace_0p5s": [
+                    {
+                        "time_bin_start_seconds": float(left),
+                        "total_load_mean_N": float(total_raw[(ts >= left) & (ts < left + 0.5)].mean()) if np.any((ts >= left) & (ts < left + 0.5)) else None,
+                        "active_sensor_count_mean_gt_5N": float(active_count[(ts >= left) & (ts < left + 0.5)].mean()) if np.any((ts >= left) & (ts < left + 0.5)) else None,
+                        "region_load_mean_N": {
+                            key: float(value[(ts >= left) & (ts < left + 0.5)].mean()) if np.any((ts >= left) & (ts < left + 0.5)) else None
+                            for key, value in regions.items()
+                        },
+                    }
+                    for left in np.arange(0.0, float(ts[-1] - ts[0]), 0.5)
+                ],
             })
             rows.append(row)
 
