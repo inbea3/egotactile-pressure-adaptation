@@ -78,10 +78,10 @@ No overlap. Require valid coverage of both windows and minimum timestamp coverag
 
 ## 6. Target construction
 
-Primary target: future regional relative load-share vector, computed over predeclared hand regions from unique physical sensors. For each time sample, aggregate only the sensors assigned to each region; then summarize regional load over the future window using a predeclared time-weighted aggregation.
+Primary target: future six-region relative load-share vector (thumb, index, middle, ring, little, palm), using the official sensor mapping. Reconstruct physical sensors by grouping the 162 layout channels by source raw index: keep single-cell sensors once and sum all six virtual cells for each bend sensor (each virtual cell stores one sixth of its physical sensor value). Then sum the 137 physical sensor values within each of the six regions. For each time sample, compute regional load and total load; define regional share only when total load exceeds the valid-load threshold frozen from signal-only diagnostics. Summarize the six shares over the future window using a predeclared time-weighted aggregation.
 
 Also retain:
-- future regional contact-time proportion;
+- future regional contact-time proportion (using region-specific activation thresholds frozen from signal-only diagnostics);
 - future absolute total load summary;
 - pairwise regional co-activation as a secondary target.
 
