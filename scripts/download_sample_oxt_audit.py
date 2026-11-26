@@ -9,7 +9,10 @@ from pathlib import Path
 
 from huggingface_hub import HfApi, hf_hub_download
 
-from scripts.inspect_oxt_archive import inspect_archive
+try:
+    from .inspect_oxt_archive import inspect_archive
+except ImportError:  # direct script execution from the scripts directory
+    from inspect_oxt_archive import inspect_archive
 
 
 REPO_ID = "HustleHard/EgoTactile-OXT"
