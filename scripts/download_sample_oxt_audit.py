@@ -11,8 +11,10 @@ from huggingface_hub import HfApi, hf_hub_download
 
 try:
     from .inspect_oxt_archive import inspect_archive
+    from .audit_oxt_zarr import audit_oxt_zarr_archive
 except ImportError:  # direct script execution from the scripts directory
     from inspect_oxt_archive import inspect_archive
+    from audit_oxt_zarr import audit_oxt_zarr_archive
 
 
 REPO_ID = "HustleHard/EgoTactile-OXT"
@@ -52,7 +54,9 @@ def run_sample_audit(objects: list[str], output: Path, cache_dir: Path) -> dict:
         if expected_size is not None and actual_size != expected_size:
             raise RuntimeError(f"Size mismatch for {filename}: expected {expected_size}, got {actual_size}")
         inventory = inspect_archive(local_path)
+        pressure_audit = audit_oxt_zarr_archive(local_path, object_name)
         inventory.update({
+            "pressure_only_trajectory_audit": pressure_audit,
             "object_name": object_name,
             "dataset_revision": revision,
             "dataset_path": filename,
