@@ -131,6 +131,10 @@ def main() -> None:
         "objects": len(result["objects"]),
         "all_objects_pass": result["all_objects_pass"],
         "unique_physical_sensors": result["unique_physical_sensors"],
+        "object_results": [
+            {k: x[k] for k in ("object_name", "raw_index_mapping_stable_across_frames", "grid_mapping_stable_across_frames", "raw_indices_match_official_note", "grid_coordinates_match_official_note", "bend_virtual_cell_pressure_mismatch_count", "all_checks_pass")}
+            for x in result["objects"]
+        ],
         "output": str(args.output),
     }, indent=2))
     if not result["all_objects_pass"]:
