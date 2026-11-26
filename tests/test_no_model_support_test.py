@@ -38,6 +38,10 @@ class NoModelSupportTests(unittest.TestCase):
         self.assertEqual(result["shot_summaries"]["5"]["object_count"], 4)
         self.assertTrue(result["support_query_participants_are_disjoint_within_object"])
         self.assertFalse(result["model_training_performed"])
+        for shot, rows in result["object_level_metrics"].items():
+            for row in rows:
+                self.assertAlmostEqual(row["shrinkage_mae_by_lambda"]["0.0"], row["global_transition_mae"], places=10)
+                self.assertAlmostEqual(row["shrinkage_mae_by_lambda"]["1.0"], row["support_correction_mae"], places=10)
 
 
 if __name__ == "__main__":
