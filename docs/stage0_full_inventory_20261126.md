@@ -24,10 +24,10 @@ Each OXT episode is a participant-object recording containing approximately five
 |---|---:|
 | Named object archives | 63 |
 | Total frames | 314,100 |
-| Complete episodes / source trajectories | 767 |
+| Participant-object recordings / OXT episodes | 767 |
 | Direct gloved-hand episodes | 692 |
 | Weakly paired bare-hand episodes | 75 |
-| Eligible preliminary gloved-hand trajectories after conservative signal/time exclusions | **692** |
+| Direct gloved-hand participant-object recordings | **692** |
 | Objects with at least 6 eligible trajectories | **63 / 63** |
 
 The 692 direct gloved-hand episodes and 75 weakly paired bare-hand episodes reconcile exactly with the 767 episode count reported by the dataset card.
@@ -40,7 +40,7 @@ The full archive inventory contains 692 directly paired gloved-hand participant-
 
 The inferential task remains new **named-object** adaptation. The seven broad categories are not the held-out unit and are not called unseen categories.
 
-## 4. Exclusions and integrity exceptions
+## 4. Source-clock warnings and integrity exceptions
 
 Three source-clock timing anomalies and one source-clock duplicate-pressure warning were found. They are not primary exclusions when the synchronized master-clock pressure sequence is valid:
 
@@ -53,7 +53,7 @@ Three source-clock timing anomalies and one source-clock duplicate-pressure warn
 
 A second duplicate-time pressure conflict was found in SamyangSpicyChickenCupNoodles, participant p012, a weakly paired bare-hand record already excluded from the primary subset.
 
-The three short-duration trajectories are **not** rescued using frame timestamps. That would assume synchronization semantics not yet established for the pressure stream. They remain excluded until a separately justified data-repair analysis is approved.
+The three short source-clock duration anomalies are **not excluded** from the primary pressure sequence because `data.timestamps` is the synchronized master timeline. Their source-clock warnings remain recorded for quality control.
 
 ## 5. Timestamp semantics
 
@@ -61,7 +61,7 @@ Across the three initial sample objects, repeated adjacent tactile timestamps we
 - one in a primary gloved-hand trajectory (BellPepper/p002);
 - one in an already-excluded weakly paired bare-hand trajectory (SamyangSpicyChickenCupNoodles/p012).
 
-The full inventory found no negative tactile timestamp intervals within the individual episode slices. Some concatenated object arrays contain a negative interval at an episode boundary; this is why all temporal checks are performed within episode boundaries, never across the concatenated object array.
+The full inventory found no negative or duplicate master-clock intervals within the individual episode slices. Source tactile timestamps may repeat and may reset at episode boundaries; all source-clock diagnostics are therefore episode-local and never computed across concatenated object arrays.
 
 The corrected frozen rule is:
 - use `data.timestamps` as the synchronized master time axis for the aligned pressure sequence;
@@ -82,7 +82,7 @@ All 63 object archives were inspected:
 - the raw-index mapping is constant across all frames within every object archive;
 - all 162-layout pressure values in all inspected archives are finite.
 
-The per-object raw-index multiplicities and exact anatomical/region semantics must still be reconciled with `supplementary_tactile_note.json` before regional target construction. A 162-cell display is not 162 independent physical sensors.
+The official mapping note has been parsed and cross-validated on Apple, SprayBottle, and TennisBall: source raw indices and grid coordinates match, the five bend virtual groups are internally identical per cell, and the six regions are documented in `docs/sensor_mapping_spec.md`. A 162-cell display is not 162 independent physical sensors.
 
 ## 7. Stage 0 decision
 
