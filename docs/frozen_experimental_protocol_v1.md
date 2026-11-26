@@ -75,16 +75,18 @@ The 5-shot gate requires at least six independent eligible trajectories for an o
 
 ## 6. Contact onset and windowing (Stage 1)
 
-Use actual tactile timestamps, not an assumed constant frame rate. Initial archive inspection found repeated tactile timestamps whose adjacent pressure vectors were identical in all repeated-timestamp rows in the three sampled objects. Therefore, within each episode, collapse consecutive rows with the same tactile timestamp only when their pressure vectors are exactly identical; retain one pressure sample at that timestamp. If equal timestamps carry different pressure vectors, flag the episode and do not silently average them. Process episodes independently because timestamps may reset at episode boundaries. Report duplicate, conflicting, and negative intervals. Use zero-order-hold time weighting over the resulting unique tactile timestamps, with an explicitly documented endpoint convention. Do not sort timestamps globally.
+Use `data.timestamps`, the synchronized master-clock timeline for the aligned pressure sequence, not an assumed constant frame rate. `data.tactile_timestamps` is the auxiliary glove source-update clock and may repeat while a previous pressure readout is held at a new master tick; do not collapse distinct master-clock rows because the source clock repeats. Initial archive inspection found repeated tactile timestamps whose adjacent pressure vectors were identical in all repeated-timestamp rows in the three sampled objects. Therefore, within each episode, collapse consecutive rows with the same tactile timestamp only when their pressure vectors are exactly identical; retain one pressure sample at that timestamp. If equal timestamps carry different pressure vectors, flag the episode and do not silently average them. Process episodes independently because timestamps may reset at episode boundaries. Report duplicate, conflicting, and negative intervals. Use zero-order-hold time weighting over the resulting unique tactile timestamps, with an explicitly documented endpoint convention. Do not sort timestamps globally.
 
 Reconstruct the paper's per-sensor 5 N noise filter only as a candidate preprocessing rule. It is not automatically the whole-hand contact-onset detector.
 
 Before windowing, validate timestamp semantics using the frozen duplicate rule above. Require no negative within-episode tactile intervals, no conflicting duplicate-time pressure samples, and a valid monotonic frame/tactile time relationship. Episodes failing these checks are flagged with reasons, not silently repaired.
 
+Define a pressure-only event candidate from the total reconstructed physical-sensor load. The current exploratory candidate uses 0.5-second load bins, a three-bin moving average, minimum peak separation of 3 seconds, prominence relative to the recording's load dynamic range, and a sustained pressure-rise crossing from local trough toward the peak. This is a pressure-defined event, not a ground-truth physical contact label. Validate its sensitivity on all objects before freezing.
+
 Define and compare:
 - per-sensor denoising/activation threshold;
-- trajectory-level onset from aggregate pressure over valid sensors;
-- continuous-contact criterion.
+- total-load peak detection and local pressure-rise onset;
+- continuous-contact/release alternatives.
 
 Freeze one onset rule after signal-only diagnostics, before examining model performance. Record the rule, thresholds, and sensitivity alternatives.
 
@@ -96,7 +98,7 @@ No overlap. Require valid coverage of both windows and minimum timestamp coverag
 
 ## 7. Target construction
 
-Primary target: future six-region relative load-share vector (thumb, index, middle, ring, little, palm), using the official sensor mapping. Reconstruct physical sensors by grouping the 162 layout channels by source raw index: keep single-cell sensors once and sum all six virtual cells for each bend sensor (each virtual cell stores one sixth of its physical sensor value). Then sum the 137 physical sensor values within each of the six regions. For each time sample, compute regional load and total load; define regional share only when total load exceeds the valid-load threshold frozen from signal-only diagnostics. Summarize the six shares over the future window using a predeclared time-weighted aggregation.
+Primary target: future six-region relative load-share vector (thumb, index, middle, ring, little, palm), using the official sensor mapping. For each pressure-defined event, the candidate early input is the first 1 second after pressure-rise onset and the future target is the following 2 seconds. Repeated events remain nested within a participant-object recording. Reconstruct physical sensors by grouping the 162 layout channels by source raw index: keep single-cell sensors once and sum all six virtual cells for each bend sensor (each virtual cell stores one sixth of its physical sensor value). Then sum the 137 physical sensor values within each of the six regions. For each time sample, compute regional load and total load; define regional share only when total load exceeds the valid-load threshold frozen from signal-only diagnostics. Summarize the six shares over the future window using a predeclared time-weighted aggregation.
 
 Also retain:
 - future regional contact-time proportion (using region-specific activation thresholds frozen from signal-only diagnostics);
@@ -119,7 +121,7 @@ This stage tests whether named-object-specific future structure is sufficiently 
 
 ## 9. Stage 2B — no-model Support information test
 
-For each eligible held-out object, use K complete participant-object recordings from K distinct participants as Support and a different participant's complete recording as Query. Each recording retains its five nested grasp repetitions intact. Repeat valid participant-level Support/Query combinations where feasible.
+For each eligible held-out object, use K complete participant-object recordings from K distinct participants as Support and a different participant's complete recording as Query. Each recording retains all of its pressure-defined events intact. Cycle/event-level metrics are first averaged within participant; only then are participant recordings combined. Repeat valid participant-level Support/Query combinations where feasible.
 
 Compare:
 1. **Early persistence:** predict Query future structure using its own early structure.
