@@ -1,0 +1,39 @@
+name: EgoTactile Stage 1 signal-only diagnostics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/run_stage1_signal_diagnostics.py"
+      - ".github/workflows/egotactile-stage1-signal-diagnostics.yml"
+  workflow_dispatch:
+    inputs:
+      objects:
+        description: "Comma-separated object names for signal-only diagnostics"
+        required: true
+        default: "Apple,CannedLuncheonMeat,BodyWash,SprayBottle,Clip,TapeMeasure,Dumbbell,TennisBall,ElectricToothbrush,PowerBank-20000mAh,GlassBowl,Mug"
+
+permissions:
+  contents: read
+
+jobs:
+  signal-diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install signal audit dependencies
+        run: python -m pip install --upgrade huggingface_hub "zarr<3" numcodecs numpy
+      - name: Run pressure-only signal diagnostics
+        env:
+          OBJECTS: ${{ github.event.inputs.objects || 'Apple,CannedLuncheonMeat,BodyWash,SprayBottle,Clip,TapeMeasure,Dumbbell,TennisBall,ElectricToothbrush,PowerBank-20000mAh,GlassBowl,Mug' }}
+        run: python scripts/run_stage1_signal_diagnostics.py --objects "$OBJECTS" --output results/egotactile_stage1_signal_diagnostics.json
+      - name: Upload signal-only diagnostic report
+        uses: actions/upload-artifact@v4
+        with:
+          name: egotactile-stage1-signal-diagnostics
+          path: results/egotactile_stage1_signal_diagnostics.json
+          retention-days: 30
