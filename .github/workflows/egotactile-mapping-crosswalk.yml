@@ -1,0 +1,38 @@
+name: EgoTactile sensor mapping crosswalk validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/validate_oxt_mapping.py"
+      - ".github/workflows/egotactile-mapping-crosswalk.yml"
+  workflow_dispatch:
+    inputs:
+      objects:
+        description: "Comma-separated object archive names"
+        required: true
+        default: "Apple,SprayBottle,TennisBall"
+
+permissions:
+  contents: read
+
+jobs:
+  crosswalk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install mapping validation dependencies
+        run: python -m pip install --upgrade huggingface_hub "zarr<3" numcodecs
+      - name: Validate mapping against pressure-only Zarr arrays
+        env:
+          OBJECTS: ${{ github.event.inputs.objects || 'Apple,SprayBottle,TennisBall' }}
+        run: python scripts/validate_oxt_mapping.py --objects "$OBJECTS" --output results/egotactile_mapping_crosswalk_validation.json
+      - name: Upload crosswalk validation
+        uses: actions/upload-artifact@v4
+        with:
+          name: egotactile-mapping-crosswalk-validation
+          path: results/egotactile_mapping_crosswalk_validation.json
+          retention-days: 30
