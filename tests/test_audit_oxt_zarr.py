@@ -26,7 +26,7 @@ class AuditOxtZarrTests(unittest.TestCase):
             data.array("right_tactile_data_pressure", np.ones((n, 162), dtype=np.float32), chunks=(4, 162))
             data.array("right_tactile_raw_pressure_256", np.ones((n, 256), dtype=np.uint16), chunks=(4, 256))
             idx = np.tile(np.arange(162, dtype=np.int64), (n, 1))
-            idx[:, -25:] = np.arange(137, 162)
+            idx[:, -25:] = np.arange(112, 137)
             data.array("right_tactile_raw_index_pressure", idx, chunks=(4, 162))
             meta.array("episode_ends", np.array([4, 8], dtype=np.int64), chunks=(2,))
             store.close()
@@ -35,7 +35,7 @@ class AuditOxtZarrTests(unittest.TestCase):
             self.assertEqual(result["episode_count"], 2)
             self.assertEqual(result["episode_counts"]["gloved_hand_only"], 2)
             self.assertEqual(result["episode_counts"]["direct_pairing_only"], 2)
-            self.assertEqual(result["unique_raw_sensor_indices_in_first_frame"], 162)
+            self.assertEqual(result["unique_raw_sensor_indices_in_first_frame"], 137)
             self.assertFalse(result["video_decoded"])
 
 
