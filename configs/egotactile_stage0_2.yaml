@@ -1,0 +1,43 @@
+dataset:
+  name: HustleHard/EgoTactile-OXT
+  license: CC-BY-NC-4.0
+  subset: gloved_hand
+  pairing_quality: direct
+  modality_allowlist: [pressure, timestamps, permitted_metadata]
+  modality_denylist: [rgb, video, image, optical_flow, visual_embedding]
+sensor:
+  source_vector_length: 256
+  oxt_layout_positions: 162
+  unique_physical_indices_expected: 137
+  preserve_all_mappings: true
+  treat_layout_cells_as_independent_sensors: false
+windows:
+  early_seconds: [0.0, 1.0]
+  future_seconds: [1.0, 3.0]
+  status: provisional_until_stage1_signal_only_freeze
+shots: [1, 2, 5]
+independence:
+  support_query_unit: complete_trajectory
+  outer_split_unit: named_object
+  inference_unit: named_object
+  min_trajectories_for_5shot: 6
+targets:
+  primary: future_regional_relative_load_share
+  secondary:
+    - future_regional_contact_time
+    - future_absolute_total_load
+    - pairwise_regional_coactivation
+  pearson_r_ge_0_7: sensitivity_only
+models:
+  initial_baselines:
+    - early_persistence
+    - global_transition
+    - object_support_correction
+  neural_stage:
+    - pooled_mlp_zero_shot
+    - pooled_mlp_finetuning
+    - reptile_initialization
+  defer:
+    - gnn
+    - maml
+status: frozen_design_not_yet_empirically_validated
