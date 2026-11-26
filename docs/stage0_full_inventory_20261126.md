@@ -14,7 +14,11 @@
 - RGB/video arrays decoded: none
 - Raw pressure values exported to artifact/repository: none
 
-## 1. Dataset-level inventory
+## 1. Recording-unit clarification
+
+Each OXT episode is a participant-object recording containing approximately five grasp repetitions, not a single grasp. The paper's acquisition protocol describes five repetitions per object per participant, each about six seconds. Therefore, 1/2/5-shot feasibility below means 1/2/5 distinct participant-object recordings (participants) for Support plus one different participant recording for Query. The five repetitions inside a recording are never split across Support/Query and are not treated as independent observations.
+
+## 2. Dataset-level inventory
 
 | Quantity | Observed |
 |---|---:|
@@ -28,7 +32,7 @@
 
 The 692 direct gloved-hand episodes and 75 weakly paired bare-hand episodes reconcile exactly with the 767 episode count reported by the dataset card.
 
-## 2. Shot feasibility by object
+## 3. Shot feasibility by object
 
 After applying the follow-up episode-level timestamp-conflict check, eligible trajectory counts are:
 - 58 objects with 11 eligible trajectories;
@@ -38,7 +42,7 @@ Therefore all 63 named objects satisfy the minimum six-trajectory requirement fo
 
 The inferential task remains new **named-object** adaptation. The seven broad categories are not the held-out unit and are not called unseen categories.
 
-## 3. Exclusions and integrity exceptions
+## 4. Exclusions and integrity exceptions
 
 Four direct gloved-hand trajectories are conservatively excluded from the preliminary 1-second + 2-second window candidate pool:
 
@@ -53,7 +57,7 @@ A second duplicate-time pressure conflict was found in SamyangSpicyChickenCupNoo
 
 The three short-duration trajectories are **not** rescued using frame timestamps. That would assume synchronization semantics not yet established for the pressure stream. They remain excluded until a separately justified data-repair analysis is approved.
 
-## 4. Timestamp semantics
+## 5. Timestamp semantics
 
 Across the three initial sample objects, repeated adjacent tactile timestamps were accompanied by exactly repeated pressure vectors. The full inventory found two object-level duplicate-time pressure conflicts; focused episode inspection located:
 - one in a primary gloved-hand trajectory (BellPepper/p002);
@@ -70,7 +74,7 @@ The frozen rule is:
 
 The three short-duration anomalies demonstrate that the two timestamp fields cannot be assumed interchangeable.
 
-## 5. Sensor mapping and pressure integrity
+## 6. Sensor mapping and pressure integrity
 
 All 63 object archives were inspected:
 - `right_tactile_data_pressure` has 162 layout positions;
@@ -82,7 +86,7 @@ All 63 object archives were inspected:
 
 The per-object raw-index multiplicities and exact anatomical/region semantics must still be reconciled with `supplementary_tactile_note.json` before regional target construction. A 162-cell display is not 162 independent physical sensors.
 
-## 6. Stage 0 decision
+## 7. Stage 0 decision
 
 **GO: proceed to Stage 1 signal semantics and target construction.**
 
