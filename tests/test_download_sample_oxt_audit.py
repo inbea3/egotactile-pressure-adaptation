@@ -18,10 +18,11 @@ class FakeFile:
 
 
 class SampleAuditTests(unittest.TestCase):
+    @patch("scripts.download_sample_oxt_audit.audit_oxt_zarr_archive")
     @patch("scripts.download_sample_oxt_audit.inspect_archive")
     @patch("scripts.download_sample_oxt_audit.hf_hub_download")
     @patch("scripts.download_sample_oxt_audit.HfApi")
-    def test_uses_pinned_revision_and_reports_metadata_only(self, api_cls, download, inspect):
+    def test_uses_pinned_revision_and_reports_metadata_only(self, api_cls, download, inspect, pressure_audit):
         api = api_cls.return_value
         api.dataset_info.return_value = FakeInfo()
         api.list_repo_tree.return_value = [
@@ -32,6 +33,7 @@ class SampleAuditTests(unittest.TestCase):
             local.write_bytes(b"data")
             download.return_value = str(local)
             inspect.return_value = {"archive": "Apple.zip", "member_count": 1}
+            pressure_audit.return_value = {"episode_count": 1}
             output = Path(tmp) / "out.json"
             report = run_sample_audit(["Apple"], output, Path(tmp) / "cache")
             self.assertEqual(report["revision"], "pinned-sha")
