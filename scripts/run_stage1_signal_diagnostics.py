@@ -392,6 +392,11 @@ def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
         "episodes_passing_timestamp_integrity": len(valid),
         "object_categories": sorted({cat for x in results for cat in x["metadata_category_values"]}),
         "candidate_onset_summary": candidate_summary,
+        "timestamp_semantics": {
+            "pressure_time_axis": "data.timestamps (synchronized 15 Hz master clock)",
+            "auxiliary_source_clock": "data.tactile_timestamps (glove source update time; repeated values indicate a held latest readout at a master tick)",
+            "policy": "Keep every pressure row on the master clock. Do not collapse rows merely because tactile_timestamps repeat. Use data.timestamps for windows and time-weighted summaries.",
+        },
         "paper_repetition_protocol": {
             "repetitions_per_participant_object_recording": 5,
             "approximate_seconds_per_repetition": 6,
