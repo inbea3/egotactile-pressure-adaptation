@@ -37,7 +37,7 @@ jobs:
       - name: Run corrected all-event and exact-five sensitivity analyses
         run: |
           python scripts/run_no_model_support_test.py \
-            --input artifacts/results/egotactile_stage1_full_event_inventory.json \
+            --input artifacts/egotactile_stage1_full_event_inventory.json \
             --output results/egotactile_stage2_no_model_support_test_corrected.json \
             --bootstrap-reps 5000 --seed 20261126
       - name: Upload corrected Stage 2 report
@@ -46,5 +46,5 @@ jobs:
           name: egotactile-stage2-corrected-no-model
           path: |
             results/egotactile_stage2_no_model_support_test_corrected.json
-            artifacts/results/egotactile_stage1_full_event_inventory.json
+            artifacts/egotactile_stage1_full_event_inventory.json
           retention-days: 30
