@@ -211,6 +211,12 @@ def detect_grasp_cycle_candidates(
             ts[-1] >= future_end and (next_onset is None or float(ts[next_onset]) >= future_end)
         )
         region_matrix = np.column_stack([region_loads[k] for k in ("thumb", "index", "middle", "ring", "little", "palm")])
+        early_regions = _time_weighted_mean(ts, region_matrix, start_time, early_end)
+        early_total = float(np.nansum(early_regions))
+        early_shares = (
+            (early_regions / early_total).tolist()
+            if np.isfinite(early_total) and early_total > 5.0 else None
+        )
         future_regions = _time_weighted_mean(ts, region_matrix, early_end, future_end)
         future_total = float(np.nansum(future_regions))
         shares = (
@@ -227,6 +233,8 @@ def detect_grasp_cycle_candidates(
             "early_sample_count": early_count,
             "future_sample_count": future_count,
             "early_future_window_covered_without_next_cycle_overlap": window_covered,
+            "early_region_load_share": early_shares,
+            "early_total_load_mean_N": early_total,
             "future_region_load_share": shares,
             "future_total_load_mean_N": future_total,
         })
