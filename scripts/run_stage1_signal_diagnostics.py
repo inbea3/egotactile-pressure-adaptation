@@ -230,10 +230,10 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
             }
             candidates = {}
             cycle_conditions = {
-                "any_sensor_gt_5N": (active_count >= 1, active_count == 0),
-                "two_sensors_gt_5N": (active_count >= 2, active_count == 0),
-                "total_load_gt_5N": (total_raw > 5.0, total_raw < 2.5),
-                "sum_excess_over_5N_gt_5N": (total_excess > 5.0, total_excess < 2.5),
+                "any_sensor_gt_5N_3samples": (active_count >= 1, active_count == 0),
+                "two_sensors_gt_5N_3samples": (active_count >= 2, active_count == 0),
+                "total_load_gt_5N_3samples": (total_raw > 5.0, total_raw < 2.5),
+                "sum_excess_over_5N_gt_5N_3samples": (total_excess > 5.0, total_excess < 2.5),
             }
             for name, condition in conditions.items():
                 onset_index = find_sustained_onset(ts, condition, run_length=3, max_gap=0.5)
