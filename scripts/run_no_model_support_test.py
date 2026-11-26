@@ -15,11 +15,18 @@ SHOTS = (1, 2, 5)
 
 
 def project_to_simplex(values: np.ndarray) -> np.ndarray:
-    clipped = np.maximum(np.asarray(values, dtype=np.float64), 0.0)
-    total = float(clipped.sum())
-    if not np.isfinite(total) or total <= 0:
-        return np.full(len(clipped), 1.0 / len(clipped))
-    return clipped / total
+    """Euclidean projection onto the probability simplex."""
+    vector = np.asarray(values, dtype=np.float64)
+    if not np.isfinite(vector).all():
+        return np.full(len(vector), 1.0 / len(vector))
+    ordered = np.sort(vector)[::-1]
+    cumulative = np.cumsum(ordered) - 1.0
+    candidates = ordered - cumulative / np.arange(1, len(vector) + 1) > 0
+    if not candidates.any():
+        return np.full(len(vector), 1.0 / len(vector))
+    rho = int(np.flatnonzero(candidates)[-1])
+    theta = cumulative[rho] / float(rho + 1)
+    return np.maximum(vector - theta, 0.0)
 
 
 def extract_participant_vectors(stage1_report: dict) -> dict:
