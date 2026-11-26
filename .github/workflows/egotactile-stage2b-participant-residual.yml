@@ -43,7 +43,7 @@ jobs:
             --input results/stage1_source/egotactile_stage1_full_event_inventory.json \
             --output results/stage2b_participant_residual.json \
             --bootstrap-reps 5000 --seed 20261126 \
-            > results/stage2b_console_summary.json
+            | tee results/stage2b_console_summary.json
       - name: Upload reproducible results
         uses: actions/upload-artifact@v4
         with:
