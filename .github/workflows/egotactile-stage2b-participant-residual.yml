@@ -1,0 +1,55 @@
+name: EgoTactile Stage 2B participant and residual audit
+on:
+  push:
+    branches: [experiment/stage2b-participant-residual-20261126]
+    paths:
+      - ".github/workflows/egotactile-stage2b-participant-residual.yml"
+  pull_request:
+    paths:
+      - "scripts/run_stage2b_participant_residual.py"
+      - "tests/test_stage2b_participant_residual.py"
+      - ".github/workflows/egotactile-stage2b-participant-residual.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  stage2b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install numpy
+      - name: Run deterministic unit checks
+        run: python -m unittest discover -s tests -p test_stage2b_participant_residual.py -v
+      - name: Download frozen Stage 1 report
+        uses: actions/download-artifact@v4
+        with:
+          name: egotactile-full-stage1-and-stage2-no-model
+          run-id: 45809071334
+          repository: inbea3/egotactile-pressure-adaptation
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: results/stage1_source
+      - name: Run participant-controlled Stage 2B
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f results/stage1_source/egotactile_stage1_full_event_inventory.json
+          python scripts/run_stage2b_participant_residual.py \
+            --input results/stage1_source/egotactile_stage1_full_event_inventory.json \
+            --output results/stage2b_participant_residual.json \
+            --bootstrap-reps 5000 --seed 20261126 \
+            > results/stage2b_console_summary.json
+      - name: Upload reproducible results
+        uses: actions/upload-artifact@v4
+        with:
+          name: egotactile-stage2b-participant-residual
+          path: |
+            results/stage2b_participant_residual.json
+            results/stage2b_console_summary.json
+          retention-days: 30
+
