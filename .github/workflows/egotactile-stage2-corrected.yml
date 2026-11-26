@@ -30,7 +30,7 @@ jobs:
         with:
           name: egotactile-full-stage1-and-stage2-no-model
           path: artifacts
-          run-id: ${{ inputs.stage1_run_id }}
+          run-id: ${{ github.event.inputs.stage1_run_id || '45809071334' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run corrected all-event and exact-five sensitivity analyses
         run: |
