@@ -65,18 +65,17 @@ For each time sample:
 
 This prevents virtual bend-cell duplication from inflating a region's sensor count or total load.
 
-## 5. Validation still required
+## 5. Sample-level crosswalk validation — passed
 
-The official note has been parsed and the generated mapping satisfies:
-- 162 layout channels;
-- 137 unique physical source indices;
-- multiplicity distribution: 132 single channels and five six-channel bend groups;
-- six region counts summing to 137 physical sensors and 162 layout channels.
+The mapping crosswalk workflow validated Apple, SprayBottle, and TennisBall at the pinned dataset revision. All three objects passed:
+- `right_tactile_raw_index_pressure` exactly matches the official 1-based source-index sequence;
+- raw-index mapping is constant across all frames;
+- `right_tactile_grid_xy_pressure` exactly matches the official grid coordinates when interpreted in stored `[x, y]` order (the note describes each point as `y, x`);
+- grid mapping is constant across all frames;
+- all five six-cell bend groups have identical per-cell pressure values across frames;
+- pressure transform metadata states that the five bend source channels are expanded to six virtual cells and divided by six, with pressure unit N.
 
-Before target generation, run a sample-level crosswalk validation against the Zarr arrays:
-- `right_tactile_raw_index_pressure` equals the official 1-based source-index sequence;
-- `right_tactile_grid_xy_pressure` equals the official grid coordinates;
-- six virtual cells for each bend sensor carry identical per-cell values;
-- no unrecognized functional areas or mapping changes occur across frames.
+Workflow: https://github.com/inbea3/egotactile-pressure-adaptation/actions/runs/45803875944
+Artifact ID: `15107892944`; SHA-256: `3d850fe9a00a17c971c0834f8606995c7c136393584a13735b8740c8c60328fe`.
 
-Do not interpret the grid as hand-joint kinematics; the dataset does not provide validated hand-joint coordinates.
+The six-region grouping is therefore suitable as a documented derived representation for the next target-construction stage, subject to the stated aggregation rule. Do not interpret the grid as hand-joint kinematics; the dataset does not provide validated hand-joint coordinates.
