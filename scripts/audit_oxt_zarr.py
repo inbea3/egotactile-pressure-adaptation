@@ -65,6 +65,15 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
         mapping_constant = bool(np.all(raw_indices == mapping_first[None, :]))
         unique_indices = sorted(set(mapping_first.tolist()))
         finite = np.isfinite(pressure_162)
+        all_tactile_dt = np.diff(timestamps)
+        duplicate_mask = all_tactile_dt == 0
+        if duplicate_mask.any():
+            duplicate_pressure_equal = np.all(
+                pressure_162[1:][duplicate_mask] == pressure_162[:-1][duplicate_mask], axis=1
+            )
+            duplicate_pressure_equal_count = int(duplicate_pressure_equal.sum())
+        else:
+            duplicate_pressure_equal_count = 0
         pressure_stats = {
             "finite_fraction": float(finite.mean()),
             "min": float(np.nanmin(pressure_162)) if finite.any() else None,
@@ -148,6 +157,8 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
                 "positive_interval_count": int(np.sum(np.diff(timestamps) > 0)),
                 "duplicate_interval_count": int(np.sum(np.diff(timestamps) == 0)),
                 "negative_interval_count": int(np.sum(np.diff(timestamps) < 0)),
+                "duplicate_pressure_rows_identical_to_previous": duplicate_pressure_equal_count,
+                "duplicate_pressure_rows_different_from_previous": int(duplicate_mask.sum()) - duplicate_pressure_equal_count,
                 "median_positive_interval_seconds": float(np.median(np.diff(timestamps)[np.diff(timestamps) > 0])),
                 "interval_p01_seconds": float(np.percentile(np.diff(timestamps), 1)),
                 "interval_p99_seconds": float(np.percentile(np.diff(timestamps), 99)),
