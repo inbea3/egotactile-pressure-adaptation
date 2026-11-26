@@ -27,33 +27,31 @@ Each OXT episode is a participant-object recording containing approximately five
 | Complete episodes / source trajectories | 767 |
 | Direct gloved-hand episodes | 692 |
 | Weakly paired bare-hand episodes | 75 |
-| Eligible preliminary gloved-hand trajectories after conservative signal/time exclusions | **688** |
+| Eligible preliminary gloved-hand trajectories after conservative signal/time exclusions | **692** |
 | Objects with at least 6 eligible trajectories | **63 / 63** |
 
 The 692 direct gloved-hand episodes and 75 weakly paired bare-hand episodes reconcile exactly with the 767 episode count reported by the dataset card.
 
 ## 3. Shot feasibility by object
 
-After applying the follow-up episode-level timestamp-conflict check, eligible trajectory counts are:
-- 58 objects with 11 eligible trajectories;
-- 5 objects with 10 eligible trajectories.
+Use the synchronized master clock in `data.timestamps` for the pressure sequence. The source glove clock `data.tactile_timestamps` can repeat while the latest pressure readout is held at a master tick; its short durations and duplicate-time warnings are not grounds to exclude a master-clock-valid recording.
 
-Therefore all 63 named objects satisfy the minimum six-trajectory requirement for 5-shot Support plus one independent Query. This is a **data-count feasibility result**, not evidence that Support contains predictive information.
+The full archive inventory contains 692 directly paired gloved-hand participant-object recordings: 62 objects have 11 recordings and Sponge has 10. All 63 named objects satisfy the minimum six-participant requirement for 5-shot Support plus one independent participant Query. This is a **data-count feasibility result**, not evidence that Support contains predictive information.
 
 The inferential task remains new **named-object** adaptation. The seven broad categories are not the held-out unit and are not called unseen categories.
 
 ## 4. Exclusions and integrity exceptions
 
-Four direct gloved-hand trajectories are conservatively excluded from the preliminary 1-second + 2-second window candidate pool:
+Three source-clock timing anomalies and one source-clock duplicate-pressure warning were found. They are not primary exclusions when the synchronized master-clock pressure sequence is valid:
 
 | Object | Participant | Reason |
 |---|---|---|
-| GlassBowl | p001 | Tactile timestamp elapsed duration 1.084 s despite 28.632 s frame timestamp duration; only 9 unique tactile timestamps |
-| Orange | p001 | Tactile timestamp elapsed duration 2.105 s despite 28.247 s frame timestamp duration; only 10 unique tactile timestamps |
-| Toothpaste | p002 | Tactile timestamps are constant across 394 frames (0 s elapsed); only 1 unique tactile timestamp |
-| BellPepper | p002 | One duplicate tactile timestamp carries a pressure vector different from the preceding row; timestamp/pressure conflict |
+| GlassBowl | p001 | Tactile source clock spans only 1.084 s, while master clock spans 28.632 s; source-clock warning only |
+| Orange | p001 | Tactile source clock spans 2.105 s, while master clock spans 28.247 s; source-clock warning only |
+| Toothpaste | p002 | Tactile source clock is constant across 394 master frames; source-clock warning only |
+| BellPepper | p002 | One duplicate tactile source timestamp carries a different pressure vector; source-clock warning only |
 
-A second duplicate-time pressure conflict was found in SamyangSpicyChickenCupNoodles, participant p012, but that episode is a weakly paired bare-hand record and is already excluded from the primary subset.
+A second duplicate-time pressure conflict was found in SamyangSpicyChickenCupNoodles, participant p012, a weakly paired bare-hand record already excluded from the primary subset.
 
 The three short-duration trajectories are **not** rescued using frame timestamps. That would assume synchronization semantics not yet established for the pressure stream. They remain excluded until a separately justified data-repair analysis is approved.
 
@@ -65,12 +63,12 @@ Across the three initial sample objects, repeated adjacent tactile timestamps we
 
 The full inventory found no negative tactile timestamp intervals within the individual episode slices. Some concatenated object arrays contain a negative interval at an episode boundary; this is why all temporal checks are performed within episode boundaries, never across the concatenated object array.
 
-The frozen rule is:
-- collapse adjacent equal tactile timestamps only when pressure vectors are exactly equal;
-- flag and exclude a trajectory if equal timestamps carry different pressure vectors;
-- process episodes independently;
-- use unique tactile timestamps for time-weighted windows;
-- do not sort timestamps globally or substitute frame timestamps without validation.
+The corrected frozen rule is:
+- use `data.timestamps` as the synchronized master time axis for the aligned pressure sequence;
+- keep every pressure row at its distinct master timestamp, including repeated pressure values held between glove updates;
+- retain `data.tactile_timestamps` only as an auxiliary source-clock diagnostic;
+- process episodes independently because source clocks may reset at episode boundaries;
+- do not collapse master-clock samples based on repeated source tactile timestamps.
 
 The three short-duration anomalies demonstrate that the two timestamp fields cannot be assumed interchangeable.
 
@@ -88,7 +86,7 @@ The per-object raw-index multiplicities and exact anatomical/region semantics mu
 
 ## 7. Stage 0 decision
 
-**GO: proceed to Stage 1 signal semantics and target construction.**
+**GO: proceed to Stage 1 pressure-event and target construction.**
 
 The dataset has enough independent full trajectories for 1/2/5-shot experiments across all 63 named objects after conservative preliminary exclusions.
 
@@ -99,4 +97,4 @@ The dataset has enough independent full trajectories for 1/2/5-shot experiments 
 - structure-repeatability conclusion;
 - any neural model training or Reptile experiment.
 
-Stage 1 must first retrieve and validate the official tactile mapping note, inspect timestamp/pressure behavior and baseline/noise distributions, define hand regions using documented mapping only, and freeze the onset/window/target rules without reference to model performance.
+Stage 1 has validated the official tactile mapping and a 12-object pressure-only signal sample. The next step is to run the candidate pressure-event detector and target construction across all 63 objects, then freeze the event/window/target rules without reference to model performance.
