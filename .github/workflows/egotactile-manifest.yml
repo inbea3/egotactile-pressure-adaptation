@@ -1,0 +1,31 @@
+name: EgoTactile metadata manifest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/build_egotactile_manifest.py"
+      - ".github/workflows/egotactile-manifest.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install audit dependency
+        run: python -m pip install --upgrade huggingface_hub
+      - name: Build pinned Hub file manifest (metadata only)
+        run: python scripts/build_egotactile_manifest.py --output results/egotactile_hub_manifest.json
+      - name: Upload manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: egotactile-hub-manifest
+          path: results/egotactile_hub_manifest.json
+          retention-days: 30
