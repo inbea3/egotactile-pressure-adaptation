@@ -99,6 +99,7 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             median_dt = float(np.median(dt[dt > 0])) if positive_dt else None
             frame_ts = frame_timestamps[start:end]
             frame_dt = np.diff(frame_ts)
+            pressure_slice = pressure_162[start:end]
             duplicate_mask_ep = dt == 0
             if duplicate_mask_ep.any():
                 duplicate_equal_ep = np.all(
@@ -116,7 +117,6 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             duration = float(ts[-1] - ts[0]) if len(ts) >= 2 else 0.0
             is_gloved = acq_values == ["gloved_hand"]
             is_direct = pair_values == ["direct"]
-            pressure_slice = pressure_162[start:end]
             pressure_ok = bool(np.isfinite(pressure_slice).all())
             episodes.append({
                 "episode_index": episode_index,
