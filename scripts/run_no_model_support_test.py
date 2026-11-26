@@ -144,6 +144,10 @@ def run_no_model_support_test(
             np.mean([x["delta"] for x in data[name].values()], axis=0)
             for name in other_objects
         ], axis=0)
+        global_future = np.mean([
+            np.mean([x["future"] for x in data[name].values()], axis=0)
+            for name in other_objects
+        ], axis=0)
 
         for shot in SHOTS:
             query_rows = []
@@ -152,18 +156,24 @@ def run_no_model_support_test(
                 query = query_data[query_person]
                 support_people = [p for p in people if p != query_person]
                 subset_errors = []
+                support_future_errors = []
                 for subset in itertools.combinations(support_people, shot):
                     support_delta = np.mean([query_data[p]["delta"] for p in subset], axis=0)
                     support_prediction = project_to_simplex(query["early"] + support_delta)
+                    support_future_prototype = project_to_simplex(np.mean([query_data[p]["future"] for p in subset], axis=0))
                     subset_errors.append(_mae(query["future"], support_prediction))
+                    support_future_errors.append(_mae(query["future"], support_future_prototype))
                 support_mae = float(np.mean(subset_errors))
                 persistence_mae = _mae(query["future"], project_to_simplex(query["early"]))
                 global_mae = _mae(query["future"], project_to_simplex(query["early"] + global_delta))
+                global_future_mae = _mae(query["future"], project_to_simplex(global_future))
                 query_rows.append({
                     "query_participant": query_person,
                     "support_subsets_evaluated": len(subset_errors),
                     "support_correction_mae": support_mae,
+                    "support_future_prototype_mae": float(np.mean(support_future_errors)),
                     "global_transition_mae": global_mae,
+                    "global_future_prototype_mae": global_future_mae,
                     "early_persistence_mae": persistence_mae,
                 })
             object_metrics[str(shot)].append({
@@ -171,7 +181,9 @@ def run_no_model_support_test(
                 "participant_count": len(people),
                 "support_query_combinations": sum(x["support_subsets_evaluated"] for x in query_rows),
                 "support_correction_mae": float(np.mean([x["support_correction_mae"] for x in query_rows])),
+                "support_future_prototype_mae": float(np.mean([x["support_future_prototype_mae"] for x in query_rows])),
                 "global_transition_mae": float(np.mean([x["global_transition_mae"] for x in query_rows])),
+                "global_future_prototype_mae": float(np.mean([x["global_future_prototype_mae"] for x in query_rows])),
                 "early_persistence_mae": float(np.mean([x["early_persistence_mae"] for x in query_rows])),
                 "query_details": query_rows,
             })
@@ -182,17 +194,23 @@ def run_no_model_support_test(
         support = np.asarray([x["support_correction_mae"] for x in rows])
         global_ = np.asarray([x["global_transition_mae"] for x in rows])
         persistence = np.asarray([x["early_persistence_mae"] for x in rows])
+        support_proto = np.asarray([x["support_future_prototype_mae"] for x in rows])
+        global_proto = np.asarray([x["global_future_prototype_mae"] for x in rows])
         delta_global = global_ - support
         delta_persistence = persistence - support
         summaries[str(shot)] = {
             "object_count": len(rows),
             "support_correction_mae_mean_ci95": _bootstrap_mean(support, rng, bootstrap_reps),
+            "support_future_prototype_mae_mean_ci95": _bootstrap_mean(support_proto, rng, bootstrap_reps),
             "global_transition_mae_mean_ci95": _bootstrap_mean(global_, rng, bootstrap_reps),
+            "global_future_prototype_mae_mean_ci95": _bootstrap_mean(global_proto, rng, bootstrap_reps),
+            "global_future_prototype_minus_support_future_prototype_improvement_mean_ci95": _bootstrap_mean(global_proto - support_proto, rng, bootstrap_reps),
             "early_persistence_mae_mean_ci95": _bootstrap_mean(persistence, rng, bootstrap_reps),
             "global_minus_support_improvement_mean_ci95": _bootstrap_mean(delta_global, rng, bootstrap_reps),
             "persistence_minus_support_improvement_mean_ci95": _bootstrap_mean(delta_persistence, rng, bootstrap_reps),
             "objects_support_beats_global": int(np.sum(delta_global > 0)),
             "objects_support_beats_persistence": int(np.sum(delta_persistence > 0)),
+            "objects_support_future_prototype_beats_global_future_prototype": int(np.sum(global_proto > support_proto)),
         }
 
     within_object_means = np.asarray([x["within_object_participant_pairwise_mae"] for x in repeatability])
