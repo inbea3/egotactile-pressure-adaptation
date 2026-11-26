@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from run_stage2b_participant_residual import evaluate_policy, global_mean
+from scripts.run_stage2b_participant_residual import evaluate_policy, global_mean
 
 
 def synthetic_data():
@@ -34,7 +34,7 @@ class Stage2BTests(unittest.TestCase):
 
     def test_shots_and_object_equal_aggregation(self):
         data = synthetic_data()
-        with patch("run_stage2b_participant_residual.extract_participant_vectors", return_value=data):
+        with patch("scripts.run_stage2b_participant_residual.extract_participant_vectors", return_value=data):
             report = evaluate_policy({"revision": "synthetic"}, "all_detected_events", repetitions=40)
         self.assertEqual(report["object_count"], 3)
         for shot, combinations in ((1, 30), (2, 60), (5, 6)):
