@@ -1,0 +1,774 @@
+{
+  "source_run_id": 45825360847,
+  "head_sha": "b69a171f642dfe155473b3e87478d9c31b672d2c",
+  "dataset_revision": "5b05f19e613758e76c330671f4c9f3c06af8af44",
+  "status": "exploratory",
+  "summary": {
+    "all_detected_events": {
+      "objects": 63,
+      "residual": {
+        "within_object_different_subject_residual_mae": {
+          "mean": 0.017090517994186132,
+          "ci95": [
+            0.015893712581348352,
+            0.018339531976427997
+          ]
+        },
+        "between_object_same_subject_residual_mae": {
+          "mean": 0.015663610829992857,
+          "ci95": [
+            0.01508076725752022,
+            0.01629175826456266
+          ]
+        },
+        "global_residual_template_mae": {
+          "mean": 0.012090502588927316,
+          "ci95": [
+            0.011320693650627623,
+            0.012912671819144364
+          ]
+        },
+        "object_residual_template_mae": {
+          "mean": 0.012413237490312297,
+          "ci95": [
+            0.011529597977115783,
+            0.013353344687883241
+          ]
+        },
+        "actor_residual_template_mae": {
+          "mean": 0.010746230590050702,
+          "ci95": [
+            0.009967345319794362,
+            0.011525086273937333
+          ]
+        },
+        "global_minus_object_residual_template": {
+          "mean": -0.00032273490138498204,
+          "ci95": [
+            -0.0005301476247281932,
+            -0.00011727861165657573
+          ],
+          "objects_improved": 24
+        }
+      },
+      "shots": {
+        "1": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.012045477546374016,
+              "ci95": [
+                0.011255690733441825,
+                0.012863210656603528
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.011805307424706797,
+              "ci95": [
+                0.011060022543763738,
+                0.01262165180652735
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.01207654031178259,
+              "ci95": [
+                0.011321608658293625,
+                0.012873252218910478
+              ]
+            },
+            "actor_global": {
+              "mean": 0.010739787176923888,
+              "ci95": [
+                0.009996356393279764,
+                0.011533198184613078
+              ]
+            },
+            "support_delta": {
+              "mean": 0.01678892319681012,
+              "ci95": [
+                0.0157170630756133,
+                0.01804163226490845
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.012350854930636118,
+              "ci95": [
+                0.011557777328500034,
+                0.013202956420866573
+              ]
+            },
+            "support_future_prototype": {
+              "mean": 0.062135731586046225,
+              "ci95": [
+                0.05957894257021131,
+                0.06487219765377866
+              ]
+            },
+            "global_future_prototype": {
+              "mean": 0.05111737288382242,
+              "ci95": [
+                0.048877660579146796,
+                0.0535041466953671
+              ]
+            }
+          },
+          "paired_differences_positive_favors_second": {
+            "global_query_subject_blocked_minus_support_delta": {
+              "mean": -0.004712382885027534,
+              "ci95": [
+                -0.005142938033850338,
+                -0.004277131006993754
+              ],
+              "objects_improved": 0
+            },
+            "global_query_subject_blocked_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00027431461885353065,
+              "ci95": [
+                -0.000371125435696456,
+                -0.00017271305360543282
+              ],
+              "objects_improved": 14
+            },
+            "global_known_subject_minus_support_delta": {
+              "mean": -0.004983615772103321,
+              "ci95": [
+                -0.005430752606618021,
+                -0.004555002148920739
+              ],
+              "objects_improved": 0
+            },
+            "global_known_subject_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.0005455475059293205,
+              "ci95": [
+                -0.0006527495521791928,
+                -0.00043629997597462216
+              ],
+              "objects_improved": 6
+            },
+            "persistence_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00030537738426210007,
+              "ci95": [
+                -0.0004383638301309167,
+                -0.00016797984396215137
+              ],
+              "objects_improved": 16
+            },
+            "global_future_prototype_minus_support_future_prototype": {
+              "mean": -0.011018358702223808,
+              "ci95": [
+                -0.01332419789855201,
+                -0.008367086585257907
+              ],
+              "objects_improved": 6
+            }
+          }
+        },
+        "2": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.012045477546374016,
+              "ci95": [
+                0.011269192630768978,
+                0.012861101782455938
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.011805307424706797,
+              "ci95": [
+                0.011029104895671367,
+                0.01259181557222625
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.01207654031178259,
+              "ci95": [
+                0.011332428305882698,
+                0.012905899389849162
+              ]
+            },
+            "actor_global": {
+              "mean": 0.010739787176923888,
+              "ci95": [
+                0.009980900864819536,
+                0.011538599910735222
+              ]
+            },
+            "support_delta": {
+              "mean": 0.014714793942229671,
+              "ci95": [
+                0.013702318602386085,
+                0.015803384612327366
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.012124666177889331,
+              "ci95": [
+                0.011315316447572056,
+                0.012947882666204752
+              ]
+            },
+            "support_future_prototype": {
+              "mean": 0.05413478932880675,
+              "ci95": [
+                0.05189180623886327,
+                0.05650847510022287
+              ]
+            },
+            "global_future_prototype": {
+              "mean": 0.05111737288382242,
+              "ci95": [
+                0.04888933308753591,
+                0.05351960542296953
+              ]
+            }
+          },
+          "paired_differences_positive_favors_second": {
+            "global_query_subject_blocked_minus_support_delta": {
+              "mean": -0.002638253630447083,
+              "ci95": [
+                -0.0029846498733363926,
+                -0.002319423181175471
+              ],
+              "objects_improved": 1
+            },
+            "global_query_subject_blocked_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00004812586610674441,
+              "ci95": [
+                -0.0001334010610984764,
+                0.00004341273699691654
+              ],
+              "objects_improved": 27
+            },
+            "global_known_subject_minus_support_delta": {
+              "mean": -0.0029094865175228733,
+              "ci95": [
+                -0.0032494974297492497,
+                -0.0025903232533403572
+              ],
+              "objects_improved": 1
+            },
+            "global_known_subject_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00031935875318253425,
+              "ci95": [
+                -0.00041135079123878423,
+                -0.00022115455820928003
+              ],
+              "objects_improved": 10
+            },
+            "persistence_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00007918863151531373,
+              "ci95": [
+                -0.00020682401998521632,
+                0.000050068562165241044
+              ],
+              "objects_improved": 27
+            },
+            "global_future_prototype_minus_support_future_prototype": {
+              "mean": -0.00301741644498434,
+              "ci95": [
+                -0.0051590957807299805,
+                -0.000638964774889715
+              ],
+              "objects_improved": 16
+            }
+          }
+        },
+        "5": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.012045477546374016,
+              "ci95": [
+                0.011279802961416431,
+                0.012842241494222325
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.011805307424706797,
+              "ci95": [
+                0.011088387231937417,
+                0.012606808110261361
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.01207654031178259,
+              "ci95": [
+                0.011332975737622111,
+                0.012900113583778093
+              ]
+            },
+            "actor_global": {
+              "mean": 0.010739787176923888,
+              "ci95": [
+                0.009991717371979056,
+                0.011530874842858843
+              ]
+            },
+            "support_delta": {
+              "mean": 0.013006204931407498,
+              "ci95": [
+                0.012141730770332305,
+                0.013947455962908147
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.011976632960329917,
+              "ci95": [
+                0.01120622317691867,
+                0.012776820955029971
+              ]
+            },
+            "support_future_prototype": {
+              "mean": 0.04874868363240914,
+              "ci95": [
+                0.04675326308508458,
+                0.05092776460008522
+              ]
+            },
+            "global_future_prototype": {
+              "mean": 0.05111737288382242,
+              "ci95": [
+                0.04890380581378642,
+                0.05349957866071621
+              ]
+            }
+          },
+          "paired_differences_positive_favors_second": {
+            "global_query_subject_blocked_minus_support_delta": {
+              "mean": -0.0009296646196249118,
+              "ci95": [
+                -0.00117083384077217,
+                -0.0006900754642587267
+              ],
+              "objects_improved": 9
+            },
+            "global_query_subject_blocked_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": 0.00009990735145266826,
+              "ci95": [
+                0.00002108636999782649,
+                0.00018105673431509156
+              ],
+              "objects_improved": 35
+            },
+            "global_known_subject_minus_support_delta": {
+              "mean": -0.0012008975067007014,
+              "ci95": [
+                -0.001438212373087204,
+                -0.0009647804658325782
+              ],
+              "objects_improved": 6
+            },
+            "global_known_subject_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.0001713255356231216,
+              "ci95": [
+                -0.00026044576060291506,
+                -0.00007832884298678851
+              ],
+              "objects_improved": 14
+            },
+            "persistence_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": 0.00006884458604409894,
+              "ci95": [
+                -0.000058307850849443245,
+                0.0001947815247992071
+              ],
+              "objects_improved": 33
+            },
+            "global_future_prototype_minus_support_future_prototype": {
+              "mean": 0.0023686892514132797,
+              "ci95": [
+                0.00035038585773541225,
+                0.00477137242086429
+              ],
+              "objects_improved": 31
+            }
+          }
+        }
+      }
+    },
+    "exactly_five_events": {
+      "objects": 63,
+      "residual": {
+        "within_object_different_subject_residual_mae": {
+          "mean": 0.017517448154606034,
+          "ci95": [
+            0.016234786622996305,
+            0.01882602450674509
+          ]
+        },
+        "between_object_same_subject_residual_mae": {
+          "mean": 0.016038659935620536,
+          "ci95": [
+            0.015414074282451784,
+            0.01671176512435275
+          ]
+        },
+        "global_residual_template_mae": {
+          "mean": 0.012332896342438863,
+          "ci95": [
+            0.011508306175135864,
+            0.013203653235167659
+          ]
+        },
+        "object_residual_template_mae": {
+          "mean": 0.012853348795279728,
+          "ci95": [
+            0.011930015205296025,
+            0.013844495521803113
+          ]
+        },
+        "actor_residual_template_mae": {
+          "mean": 0.010866983644251699,
+          "ci95": [
+            0.01004058168289495,
+            0.011694176105919826
+          ]
+        },
+        "global_minus_object_residual_template": {
+          "mean": -0.000520452452840866,
+          "ci95": [
+            -0.0007435597755632944,
+            -0.0002972613046574458
+          ],
+          "objects_improved": 16
+        }
+      },
+      "shots": {
+        "1": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.012181930569109673,
+              "ci95": [
+                0.011346924658974621,
+                0.013034034691193151
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.012011181044117055,
+              "ci95": [
+                0.011209845818603558,
+                0.012882378989636512
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.012325412281579013,
+              "ci95": [
+                0.011526526079476981,
+                0.013176557496556301
+              ]
+            },
+            "actor_global": {
+              "mean": 0.010859771391299445,
+              "ci95": [
+                0.010070832347117165,
+                0.011706910674370352
+              ]
+            },
+            "support_delta": {
+              "mean": 0.01719755106091741,
+              "ci95": [
+                0.016047913507437922,
+                0.018552484413522797
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.012638521053287343,
+              "ci95": [
+                0.01178367828544011,
+                0.013530964869700115
+              ]
+            },
+            "support_future_prototype": {
+              "mean": 0.06315835834328735,
+              "ci95": [
+                0.060315059113288765,
+                0.06620080261677194
+              ]
+            },
+            "global_future_prototype": {
+              "mean": 0.051779298274461365,
+              "ci95": [
+                0.04938306352279532,
+                0.05431729403730024
+              ]
+            }
+          },
+          "paired_differences_positive_favors_second": {
+            "global_query_subject_blocked_minus_support_delta": {
+              "mean": -0.004872138779338397,
+              "ci95": [
+                -0.005332389435566314,
+                -0.004404301194381617
+              ],
+              "objects_improved": 0
+            },
+            "global_query_subject_blocked_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.000313108771708331,
+              "ci95": [
+                -0.00041355177883870334,
+                -0.00021231455954902602
+              ],
+              "objects_improved": 11
+            },
+            "global_known_subject_minus_support_delta": {
+              "mean": -0.005186370016800354,
+              "ci95": [
+                -0.005653884089309686,
+                -0.004736664144865824
+              ],
+              "objects_improved": 0
+            },
+            "global_known_subject_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.0006273400091702885,
+              "ci95": [
+                -0.0007363588085919738,
+                -0.0005177201872820939
+              ],
+              "objects_improved": 5
+            },
+            "persistence_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00045659048417766936,
+              "ci95": [
+                -0.0005868196785644456,
+                -0.0003199678602073909
+              ],
+              "objects_improved": 12
+            },
+            "global_future_prototype_minus_support_future_prototype": {
+              "mean": -0.011379060068825976,
+              "ci95": [
+                -0.013708356213540867,
+                -0.008734781627482455
+              ],
+              "objects_improved": 7
+            }
+          }
+        },
+        "2": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.012181930569109673,
+              "ci95": [
+                0.011356697956127088,
+                0.013052682530549876
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.012011181044117055,
+              "ci95": [
+                0.0111679293743779,
+                0.012857139697437684
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.012325412281579013,
+              "ci95": [
+                0.011531777545449507,
+                0.013191032689171982
+              ]
+            },
+            "actor_global": {
+              "mean": 0.010859771391299445,
+              "ci95": [
+                0.010063624304629088,
+                0.011696961733699017
+              ]
+            },
+            "support_delta": {
+              "mean": 0.015051521131555173,
+              "ci95": [
+                0.013966936254313255,
+                0.016197750982991452
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.012406844130606205,
+              "ci95": [
+                0.011545710507321073,
+                0.013261624745873186
+              ]
+            },
+            "support_future_prototype": {
+              "mean": 0.05499602223103566,
+              "ci95": [
+                0.0525689396543844,
+                0.05762085085821582
+              ]
+            },
+            "global_future_prototype": {
+              "mean": 0.051779298274461365,
+              "ci95": [
+                0.049483355519916714,
+                0.05430602107217296
+              ]
+            }
+          },
+          "paired_differences_positive_favors_second": {
+            "global_query_subject_blocked_minus_support_delta": {
+              "mean": -0.0027261088499761586,
+              "ci95": [
+                -0.003092492922739065,
+                -0.002394584012806468
+              ],
+              "objects_improved": 1
+            },
+            "global_query_subject_blocked_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.0000814318490271937,
+              "ci95": [
+                -0.00016702462518208058,
+                0.000007472702609616514
+              ],
+              "objects_improved": 26
+            },
+            "global_known_subject_minus_support_delta": {
+              "mean": -0.003040340087438117,
+              "ci95": [
+                -0.0033911645908597356,
+                -0.002707727851472113
+              ],
+              "objects_improved": 0
+            },
+            "global_known_subject_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00039566308648915127,
+              "ci95": [
+                -0.0004896490618821252,
+                -0.0002973021622233536
+              ],
+              "objects_improved": 7
+            },
+            "persistence_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.0002249135614965321,
+              "ci95": [
+                -0.00035112954023674335,
+                -0.00009919001108671059
+              ],
+              "objects_improved": 21
+            },
+            "global_future_prototype_minus_support_future_prototype": {
+              "mean": -0.003216723956574287,
+              "ci95": [
+                -0.005399052965371789,
+                -0.00087020074230542
+              ],
+              "objects_improved": 14
+            }
+          }
+        },
+        "5": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.012181930569109673,
+              "ci95": [
+                0.011367915367328585,
+                0.013025204800467184
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.012011181044117055,
+              "ci95": [
+                0.01125663194092754,
+                0.012860015271460775
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.012325412281579013,
+              "ci95": [
+                0.01154484130187584,
+                0.01320365127650014
+              ]
+            },
+            "actor_global": {
+              "mean": 0.010859771391299445,
+              "ci95": [
+                0.010076417384223027,
+                0.011684327363842423
+              ]
+            },
+            "support_delta": {
+              "mean": 0.013311218269321563,
+              "ci95": [
+                0.012390487905908824,
+                0.014305610857986421
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.012252804826647711,
+              "ci95": [
+                0.011426791347484004,
+                0.013106403796415223
+              ]
+            },
+            "support_future_prototype": {
+              "mean": 0.04956788079995018,
+              "ci95": [
+                0.0473743953882966,
+                0.05195589522771522
+              ]
+            },
+            "global_future_prototype": {
+              "mean": 0.051779298274461365,
+              "ci95": [
+                0.04941234882396591,
+                0.05432259387905739
+              ]
+            }
+          },
+          "paired_differences_positive_favors_second": {
+            "global_query_subject_blocked_minus_support_delta": {
+              "mean": -0.0009858059877425505,
+              "ci95": [
+                -0.0012408004627071066,
+                -0.0007423461028819996
+              ],
+              "objects_improved": 8
+            },
+            "global_query_subject_blocked_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": 0.00007260745493130464,
+              "ci95": [
+                -0.000002913963942459759,
+                0.00014911359664594238
+              ],
+              "objects_improved": 38
+            },
+            "global_known_subject_minus_support_delta": {
+              "mean": -0.0013000372252045085,
+              "ci95": [
+                -0.001549192931772178,
+                -0.0010540464274432144
+              ],
+              "objects_improved": 4
+            },
+            "global_known_subject_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00024162378253065304,
+              "ci95": [
+                -0.00032768925714848684,
+                -0.0001541093763688364
+              ],
+              "objects_improved": 12
+            },
+            "persistence_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00007087425753803379,
+              "ci95": [
+                -0.00019175952662074805,
+                0.00005157163085088709
+              ],
+              "objects_improved": 26
+            },
+            "global_future_prototype_minus_support_future_prototype": {
+              "mean": 0.002211417474511185,
+              "ci95": [
+                0.0001758217563923976,
+                0.004496647280762732
+              ],
+              "objects_improved": 32
+            }
+          }
+        }
+      }
+    }
+  }
+}
