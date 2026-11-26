@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from scripts.run_stage1_signal_diagnostics import deduplicate_episode, find_sustained_onset
+from scripts.run_stage1_signal_diagnostics import deduplicate_episode, find_sustained_onset, detect_contact_segments
 
 
 class Stage1SignalDiagnosticsTests(unittest.TestCase):
@@ -29,6 +29,15 @@ class Stage1SignalDiagnosticsTests(unittest.TestCase):
         ts = np.array([0.0, 0.1, 1.0, 1.1, 1.2])
         condition = np.array([False, True, True, True, False])
         self.assertIsNone(find_sustained_onset(ts, condition, max_gap=0.5))
+
+    def test_detects_two_contact_cycles_separated_by_release(self):
+        ts = np.arange(12, dtype=np.float64) * 0.1
+        high = np.array([False, True, True, True, True, False, False, False, True, True, True, True])
+        low = ~high
+        segments = detect_contact_segments(ts, high, low, start_run=3, release_run=3)
+        self.assertEqual(len(segments), 2)
+        self.assertEqual(segments[0]["start_index"], 1)
+        self.assertEqual(segments[1]["start_index"], 8)
 
 
 if __name__ == "__main__":
