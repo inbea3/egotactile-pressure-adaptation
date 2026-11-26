@@ -56,7 +56,7 @@ The 75 weakly paired bare-hand records must not be mixed into the main task beca
 
 The OXT card describes 15 Hz after synchronization, while the project page describes approximately 17 Hz tactile acquisition. Use timestamps from the actual released files rather than assuming a nominal fixed rate. Report observed sampling interval distribution.
 
-The proposed 5 N threshold is **not yet accepted as a validated contact-onset threshold** for this project. It must be traced to the paper's exact signal definition and checked against the raw pressure vector, sensor calibration, baseline/noise distribution, and sampling. Do not hard-code it into preprocessing before that check.
+The EgoTactile paper does report a per-sensor noise filter of 5 N and a 200 N scaling reference (reported as the 99.9th percentile). This supports using 5 N as a reproduction candidate for per-sensor denoising/contact state, but **does not by itself define whole-hand contact onset or prove that 5 N is optimal for our new estimand**. Our pipeline must distinguish per-sensor thresholding from trajectory-level contact-start detection, inspect raw pressure baselines and sampling intervals, and predefine any aggregation rule before constructing windows. Do not silently treat the per-sensor 5 N rule as a validated whole-hand onset detector.
 
 ## Next empirical audit (small, no full download)
 
@@ -84,5 +84,6 @@ The proposed 5 N threshold is **not yet accepted as a validated contact-onset th
 - Method: official public dataset cards and project pages only.
 - No full dataset download performed.
 - No per-object counts independently computed.
+- The 5 N per-sensor denoising threshold and 200 N scaling reference were located in the paper text; their use for our trajectory-level onset rule remains unvalidated.
 - No model trained.
 - No benchmark performance claimed.
