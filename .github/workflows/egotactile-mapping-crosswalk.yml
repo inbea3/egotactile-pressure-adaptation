@@ -31,6 +31,7 @@ jobs:
           OBJECTS: ${{ github.event.inputs.objects || 'Apple,SprayBottle,TennisBall' }}
         run: python scripts/validate_oxt_mapping.py --objects "$OBJECTS" --output results/egotactile_mapping_crosswalk_validation.json
       - name: Upload crosswalk validation
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: egotactile-mapping-crosswalk-validation
