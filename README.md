@@ -25,7 +25,7 @@ This repository is independent of `inbea3/touch`. Do not modify that repository,
 - Stage 0 full audit completed: all 63 object archives, 314,100 frames, and 767 episodes were inventoried using pressure/timestamp/metadata arrays only.
 - 692 directly paired gloved-hand episodes were identified; after conservative preliminary time/signal exclusions, 688 trajectories remain. Every one of the 63 objects has at least 10 eligible trajectories, so 5-shot plus one Query is count-feasible.
 - All objects have a stable 162-layout to 137-unique-physical-index mapping and finite pressure arrays. Timestamp anomalies and exclusions are documented.
-- Unit tests are passing. Stage 1 is now focused on validating the official mapping note, timestamp semantics, contact onset, and regional target construction.
+- Unit tests are passing. The official mapping note has been parsed and the 162-layout to 137-physical-sensor crosswalk passed on three objects. Six anatomical load regions are defined. Stage 1 now focuses on timestamp/pressure semantics, contact onset, and regional target construction.
 - No model has been trained and no experimental performance result is claimed.
 
 See [the pinned dataset revision manifest](docs/dataset_revision_manifest_20261126.md), [frozen experimental protocol](docs/frozen_experimental_protocol_v1.md), [Stage 0 sample audit](docs/stage0_sample_pressure_audit_20261126.md), and [Stage 0 full inventory](docs/stage0_full_inventory_20261126.md).
