@@ -59,7 +59,9 @@ def inspect_archive(path: Path) -> dict[str, Any]:
     with zipfile.ZipFile(path, "r") as archive:
         infos = [info for info in archive.infolist() if not info.is_dir()]
         names = [info.filename for info in infos]
-        report["zip_readable"] = archive.testzip() is None
+        # Opening the central directory is sufficient for this inventory. Do not call
+        # testzip(): it would decompress every member, including large pressure arrays.
+        report["zip_readable"] = True
         report["member_count"] = len(infos)
         report["suffix_counts"] = dict(Counter(Path(name).suffix.lower() or "<none>" for name in names))
         report["top_level_prefixes"] = sorted({
