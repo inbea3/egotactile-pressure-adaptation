@@ -11,6 +11,7 @@ import numpy as np
 
 REGIONS = ("thumb", "index", "middle", "ring", "little", "palm")
 SHOTS = (1, 2, 5)
+SHRINKAGE = (0.0, 0.25, 0.5, 0.75, 1.0)
 
 
 def project_to_simplex(values: np.ndarray) -> np.ndarray:
@@ -157,12 +158,17 @@ def run_no_model_support_test(
                 support_people = [p for p in people if p != query_person]
                 subset_errors = []
                 support_future_errors = []
+                shrinkage_errors = {str(x): [] for x in SHRINKAGE}
                 for subset in itertools.combinations(support_people, shot):
                     support_delta = np.mean([query_data[p]["delta"] for p in subset], axis=0)
                     support_prediction = project_to_simplex(query["early"] + support_delta)
                     support_future_prototype = project_to_simplex(np.mean([query_data[p]["future"] for p in subset], axis=0))
                     subset_errors.append(_mae(query["future"], support_prediction))
                     support_future_errors.append(_mae(query["future"], support_future_prototype))
+                    for weight in SHRINKAGE:
+                        blended_delta = (1.0 - weight) * global_delta + weight * support_delta
+                        blended_prediction = project_to_simplex(query["early"] + blended_delta)
+                        shrinkage_errors[str(weight)].append(_mae(query["future"], blended_prediction))
                 support_mae = float(np.mean(subset_errors))
                 persistence_mae = _mae(query["future"], project_to_simplex(query["early"]))
                 global_mae = _mae(query["future"], project_to_simplex(query["early"] + global_delta))
@@ -174,6 +180,7 @@ def run_no_model_support_test(
                     "support_future_prototype_mae": float(np.mean(support_future_errors)),
                     "global_transition_mae": global_mae,
                     "global_future_prototype_mae": global_future_mae,
+                    "shrinkage_mae_by_lambda": {key: float(np.mean(value)) for key, value in shrinkage_errors.items()},
                     "early_persistence_mae": persistence_mae,
                 })
             object_metrics[str(shot)].append({
@@ -184,6 +191,10 @@ def run_no_model_support_test(
                 "support_future_prototype_mae": float(np.mean([x["support_future_prototype_mae"] for x in query_rows])),
                 "global_transition_mae": float(np.mean([x["global_transition_mae"] for x in query_rows])),
                 "global_future_prototype_mae": float(np.mean([x["global_future_prototype_mae"] for x in query_rows])),
+                "shrinkage_mae_by_lambda": {
+                    key: float(np.mean([x["shrinkage_mae_by_lambda"][key] for x in query_rows]))
+                    for key in query_rows[0]["shrinkage_mae_by_lambda"]
+                },
                 "early_persistence_mae": float(np.mean([x["early_persistence_mae"] for x in query_rows])),
                 "query_details": query_rows,
             })
@@ -198,8 +209,19 @@ def run_no_model_support_test(
         global_proto = np.asarray([x["global_future_prototype_mae"] for x in rows])
         delta_global = global_ - support
         delta_persistence = persistence - support
+        shrinkage_summary = {}
+        for weight in SHRINKAGE:
+            key = str(weight)
+            values = np.asarray([x["shrinkage_mae_by_lambda"][key] for x in rows])
+            improvement = global_ - values
+            shrinkage_summary[key] = {
+                "mae_mean_ci95": _bootstrap_mean(values, rng, bootstrap_reps),
+                "global_minus_shrinkage_improvement_mean_ci95": _bootstrap_mean(improvement, rng, bootstrap_reps),
+                "objects_shrinkage_beats_global": int(np.sum(improvement > 0)),
+            }
         summaries[str(shot)] = {
             "object_count": len(rows),
+            "shrinkage_sensitivity": shrinkage_summary,
             "support_correction_mae_mean_ci95": _bootstrap_mean(support, rng, bootstrap_reps),
             "support_future_prototype_mae_mean_ci95": _bootstrap_mean(support_proto, rng, bootstrap_reps),
             "global_transition_mae_mean_ci95": _bootstrap_mean(global_, rng, bootstrap_reps),
