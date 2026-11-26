@@ -98,6 +98,115 @@ No overlap. Require valid coverage of both windows and minimum timestamp coverag
 
 ## 7. Target construction
 
+Primary target: future six-region relative load-share vector (thumb, index, middle, ring, little, palm), using the official sensor mapping. For each pressure-defined event, the candidate early input is the first 1 second after pressure-rise onset and the future target is the following 2 seconds. Repeated events remain nested within a participant-object recording. Reconstruct physical sensors by grouping the 162 layout channels by source raw index: keep single-cell sensors once and sum all six virtual cells for each bend sensor (each virtual cell stores one sixth of its physical sensor value). Then sum the 137 physical sensor values within each of the six regions. For each time sample, compute regional load and total load; define regional share only when total load exceeds the valid-load threshold frozen from signal-only diagnostics. Define each future regional share as the ratio of time-integrated regional load to time-integrated total hand load over the future window. This is a total-load-weighted integrated share, not an unweighted mean of per-sample ratios.
+
+Also retain:
+- future regional contact-time proportion (using region-specific activation thresholds frozen from signal-only diagnostics);
+- future absolute total load summary;
+- pairwise regional co-activation as a secondary target.
+
+A future window with insufficient aggregate load is invalid for relative-share targets. Define the minimum total-load rule from sensor noise/baseline diagnostics before model evaluation. Do not normalize near-zero load into arbitrary shares.
+
+Pearson correlation matrices and r >= 0.7 edges are secondary sensitivity analyses only, not the primary target.
+
+Input features must be computed only from the early window. Targets must be computed only from the future window. No future-derived information may enter normalization, feature selection, or input construction.
+
+## 8. Stage 2A — structure repeatability
+
+For each object, compare future target vectors across independent trajectories. Compare within-object distances against between-object distances. Repeat the analysis stratified by participant and, where possible, on participant-disjoint pairs.
+
+Report object-level distributions and the number of objects with within-object similarity exceeding between-object similarity. Do not let high-trajectory-count objects dominate the aggregate.
+
+This stage tests whether named-object-specific future structure is sufficiently repeatable to be a meaningful adaptation target.
+
+## 9. Stage 2B — no-model Support information test
+
+For each eligible held-out object, use K complete participant-object recordings from K distinct participants as Support and a different participant's complete recording as Query. Each recording retains all of its pressure-defined events intact. Cycle/event-level metrics are first averaged within participant; only then are participant recordings combined. Repeat valid participant-level Support/Query combinations where feasible.
+
+Compare:
+1. **Early persistence:** predict Query future structure using its own early structure.
+2. **Global transition:** estimate mean future-minus-early change from other training objects only.
+3. **Object Support correction:** estimate future-minus-early change from the K Support trajectories of the held-out object and apply it to the Query early structure.
+
+Evaluate K = 1, 2, 5. The primary shot comparison uses the same intersection of objects eligible for 5-shot; 1/2-shot on larger object sets may be reported separately.
+
+Average episodes within each object first; inferential summaries use named objects as units, never frames, sensor cells, or episode combinations as independent subjects.
+
+Entry gate to neural models:
+- within-object future structure has demonstrable repeatability;
+- Support correction improves over the strongest simple baseline on a majority of eligible objects with nontrivial effect size;
+- the pattern is not explained solely by one participant or a few objects.
+
+If this gate fails, stop and revise the estimand/window/interaction definition. Do not proceed to Reptile merely to obtain a positive result.
+
+## 10. Outer split for neural experiments
+
+After Stage 2 passes, freeze object-disjoint train/validation/test sets. All trajectories of a named object remain in exactly one outer set. Stratify by upper-level category and participant coverage as far as the data allow, using metadata only.
+
+Validation objects are used for model selection. Test objects remain untouched until all preprocessing, target definitions, hyperparameters, and training budgets are frozen. If the number of eligible objects is too small for a defensible holdout, use nested object-grouped cross-validation and label results exploratory; do not claim a pristine independent test.
+
+Support and Query must always be distinct full trajectories. Add participant-disjoint sensitivity analysis where sample size permits.
+
+## 11. Stage 3 — model comparison
+
+Compare in this order:
+1. simple Stage 2 baselines;
+2. pooled MLP zero-shot;
+3. pooled MLP with K-shot ordinary fine-tuning;
+4. Reptile initialization with the same K-shot adaptation.
+
+Same feature inputs, targets, object split, architecture, normalization, optimizer family, support schedule, and test-time update budget. Record any unavoidable compute/data-access mismatch. Reptile is not assumed to win.
+
+Primary metric: per-object mean structural MAE. Secondary: regional-share MAE, contact-time error, RMSE, correlation/rank metrics where mathematically appropriate, improvement relative to early persistence, number of improved objects, object-level paired differences and uncertainty intervals, and compute/adaptation cost.
+
+No GNN in the first model comparison. Consider graph structure only after an MLP/meta-learning comparison demonstrates a meaningful unresolved structural limitation.
+
+## 12. Statistical unit and reporting
+
+The independent inferential unit is the named object. First average all episodes and repeated support/query combinations within each object. Then calculate object-level summaries and paired differences. Bootstrap objects, not frames, taxels, or episodes. Explicitly report small-n limitations.
+
+Report all seeds, failures, exclusions, per-object metrics, data checksums, code commit, configurations, and run logs. No cherry-picking objects or seeds.
+
+## 13. Execution order and stop/go
+
+- Gate 0: inventory, mapping, and data-integrity tests.
+- Gate 1: freeze onset/windows and target definitions.
+- Gate 2: repeatability and no-model Support information tests.
+- Gate 3: object-disjoint neural protocol.
+- Gate 4: MLP versus ordinary fine-tuning versus Reptile.
+- Gate 5: sensitivity, uncertainty, and thesis claim audit.
+
+No stage may be skipped. No neural training before Gates 0–2 pass.## 6. Pressure timeline, event detection, and windowing (Stage 1)
+
+Use `data.timestamps` as the synchronized master-clock timeline for the aligned pressure sequence (approximately 15 Hz). Use `data.tactile_timestamps` only as an auxiliary glove source-update clock. It may repeat when the latest glove readout is held at a later master tick.
+
+Rules:
+- keep every pressure row at its distinct master timestamp;
+- never collapse master-clock rows because `tactile_timestamps` repeats;
+- record source-clock duplicates, resets, and pressure mismatches as diagnostics, not automatic exclusions;
+- process each participant-object episode independently;
+- require finite, strictly increasing master timestamps within each episode;
+- use zero-order-hold time weighting over master timestamps, with the final endpoint convention documented.
+
+The paper's 5 N threshold is a per-sensor noise-filter candidate. It is not a whole-hand contact-onset detector.
+
+The current exploratory pressure-event candidate is:
+1. reconstruct the 137 physical sensor values and six regional loads;
+2. bin total physical-sensor load into 0.5-second intervals;
+3. smooth the binned series with a three-bin moving average;
+4. detect peaks with minimum separation 3 seconds and prominence equal to 25% of the recording's 95th–10th percentile load range;
+5. define a pressure-rise onset as the first three consecutive master-clock samples crossing 20% of the local trough-to-peak rise.
+
+Sensitivity alternatives use prominence fractions 0.15, 0.20, and 0.30. This is an operational pressure-defined event, not a ground-truth physical contact label and not a guaranteed one-to-one reconstruction of the five repetitions described in the paper. Do not force every recording to contain exactly five detected events. Flag zero-event and non-five-event recordings and report them.
+
+Candidate windows after each detected pressure-rise onset:
+- early input: [onset, onset + 1.0) seconds;
+- future target: [onset + 1.0, onset + 3.0) seconds.
+
+Require valid master-time coverage of both windows and no overlap with the next detected event. Repeated events remain nested within the participant-object recording. Any change to event detection or windows is exploratory, must be documented, and must be frozen before Stage 2. Never tune event/window rules using prediction performance.
+
+## 7. Target construction
+
 Primary target: future six-region relative load-share vector (thumb, index, middle, ring, little, palm), using the official sensor mapping. For each pressure-defined event, the candidate early input is the first 1 second after pressure-rise onset and the future target is the following 2 seconds. Repeated events remain nested within a participant-object recording. Reconstruct physical sensors by grouping the 162 layout channels by source raw index: keep single-cell sensors once and sum all six virtual cells for each bend sensor (each virtual cell stores one sixth of its physical sensor value). Then sum the 137 physical sensor values within each of the six regions. For each time sample, compute regional load and total load; define regional share only when total load exceeds the valid-load threshold frozen from signal-only diagnostics. Summarize the six shares over the future window using a predeclared time-weighted aggregation.
 
 Also retain:
