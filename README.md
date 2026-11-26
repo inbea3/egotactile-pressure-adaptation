@@ -20,22 +20,22 @@ This repository is independent of `inbea3/touch`. Do not modify that repository,
 ## Current status
 
 - Repository initialization is complete.
-- The 2026-11-26 desk audit identifies EgoTactile-OXT as the primary candidate, conditional on empirical metadata/sample validation.
-- TouchScale is retained as a reserve candidate; Hide-and-Seek is retained only as a separate robot-domain candidate.
-- No per-object trajectory counts have been independently computed, no full data download has been performed, and no experimental result is claimed.
+- Primary dataset is fixed: HustleHard/EgoTactile-OXT, gloved-hand pressure-only subset.
+- Hub revision pinned: `5b05f19e613758e76c330671f4c9f3c06af8af44`; 63 object ZIP archives and 3,459,799,746 total archive bytes verified by a successful metadata-only GitHub Actions run.
+- The frozen experimental protocol is recorded in `docs/frozen_experimental_protocol_v1.md`.
+- Unit-test workflow is passing. A small three-object archive smoke audit is currently being executed; trajectory-level counts and signal validity are not yet established.
+- No model has been trained and no experimental performance result is claimed.
 
-See [the 2026-11-26 candidate dataset audit](docs/dataset_candidate_audit_20261126.md).
+See [the 2026-11-26 candidate dataset audit](docs/dataset_candidate_audit_20261126.md), [pinned dataset revision manifest](docs/dataset_revision_manifest_20261126.md), and [frozen experimental protocol](docs/frozen_experimental_protocol_v1.md).
 
 ## Planned workflow
 
-1. Audit candidate public datasets and licensing/access conditions.
-2. Verify modality, sensor layout, object/structure labels, subject/session identifiers, and sample counts.
-3. Define leakage-resistant task construction and train/validation/test splits.
-4. Implement data loaders and reproducible preprocessing.
-5. Establish non-meta-learning baselines.
-6. Implement and test Reptile; compare fairly against fine-tuning.
-7. Run ablations, uncertainty analysis, and robustness checks.
-8. Preserve raw logs, configurations, code revision, and derived results.
+1. Complete EgoTactile-OXT archive and trajectory inventory.
+2. Verify pressure sensor mapping, timestamps, episode boundaries, and signal quality.
+3. Freeze contact onset, early/future windows, and structural target.
+4. Run structure-repeatability and no-model Support-information tests.
+5. Only after the feasibility gate passes, run object-disjoint MLP and Reptile comparisons.
+6. Run sensitivity, uncertainty, and robustness analyses.
 
 ## Reproducibility
 
