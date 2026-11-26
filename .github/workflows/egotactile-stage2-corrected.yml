@@ -1,6 +1,11 @@
 name: EgoTactile Stage 2 corrected no-model analysis
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/run_no_model_support_test.py"
+      - ".github/workflows/egotactile-stage2-corrected.yml"
   workflow_dispatch:
     inputs:
       stage1_run_id:
