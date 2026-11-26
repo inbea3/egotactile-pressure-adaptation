@@ -92,7 +92,7 @@ def build_sensor_mapping(note_wrapper: dict, expected_layout: int = 162, expecte
         })
 
     multiplicities = {n: sum(x["multiplicity"] == n for x in physical) for n in (1, 6)}
-    if multiplicities != {1: 132, 6: 5}:
+    if expected_layout == 162 and expected_unique == 137 and multiplicities != {1: 132, 6: 5}:
         raise ValueError(f"Unexpected multiplicity distribution: {multiplicities}")
 
     regions = []
