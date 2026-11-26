@@ -109,6 +109,9 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             else:
                 duplicate_mismatch_count_ep = 0
             frame_time_ok = bool(len(frame_ts) >= 2 and np.all(frame_dt >= 0))
+            frame_duration = float(frame_ts[-1] - frame_ts[0]) if len(frame_ts) >= 2 else 0.0
+            unique_tactile_times = int(len(np.unique(ts[np.isfinite(ts)])))
+            pressure_change_count = int(np.sum(np.any(np.diff(pressure_slice, axis=0) != 0, axis=1))) if len(pressure_slice) > 1 else 0
             timestamp_integrity_ok = bool(negative_dt == 0 and duplicate_mismatch_count_ep == 0 and frame_time_ok)
             duration = float(ts[-1] - ts[0]) if len(ts) >= 2 else 0.0
             is_gloved = acq_values == ["gloved_hand"]
@@ -121,6 +124,9 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
                 "end_frame_exclusive": end,
                 "frame_count": end - start,
                 "duration_seconds": duration,
+                "frame_timestamp_duration_seconds": frame_duration,
+                "unique_tactile_timestamp_count": unique_tactile_times,
+                "consecutive_pressure_change_count": pressure_change_count,
                 "sampling_interval_median_seconds": median_dt,
                 "timestamps_non_decreasing": monotonic,
                 "timestamp_positive_interval_count": positive_dt,
