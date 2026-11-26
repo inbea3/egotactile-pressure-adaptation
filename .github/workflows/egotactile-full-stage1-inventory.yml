@@ -25,9 +25,14 @@ jobs:
       - name: Run all 63 object pressure-only event and target audits
         run: |
           python scripts/run_full_stage1_event_inventory.py --output results/egotactile_stage1_full_event_inventory.json
-      - name: Upload complete Stage 1 inventory
+      - name: Run Stage 2 no-model Support information test
+        run: |
+          python scripts/run_no_model_support_test.py --input results/egotactile_stage1_full_event_inventory.json --output results/egotactile_stage2_no_model_support_test.json --bootstrap-reps 5000 --seed 20261126
+      - name: Upload Stage 1 and Stage 2 reports
         uses: actions/upload-artifact@v4
         with:
-          name: egotactile-full-stage1-event-inventory
-          path: results/egotactile_stage1_full_event_inventory.json
+          name: egotactile-full-stage1-and-stage2-no-model
+          path: |
+            results/egotactile_stage1_full_event_inventory.json
+            results/egotactile_stage2_no_model_support_test.json
           retention-days: 30
