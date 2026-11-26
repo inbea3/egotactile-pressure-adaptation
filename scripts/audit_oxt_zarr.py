@@ -47,6 +47,7 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
         pairing = _strings(data["pairing_quality"])
         subject = _strings(data["subject_id"])
         timestamps = np.asarray(data["tactile_timestamps"][:], dtype=np.float64)
+        frame_timestamps = np.asarray(data["timestamps"][:], dtype=np.float64)
         pressure_162 = np.asarray(data["right_tactile_data_pressure"][:], dtype=np.float32)
         raw_256 = np.asarray(data["right_tactile_raw_pressure_256"][:])
         raw_indices = np.asarray(data["right_tactile_raw_index_pressure"][:], dtype=np.int64)
@@ -57,7 +58,7 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             raise ValueError(f"Unexpected raw pressure shape: {raw_256.shape}")
         if raw_indices.shape != (frame_count, 162):
             raise ValueError(f"Unexpected raw index shape: {raw_indices.shape}")
-        if any(len(x) != frame_count for x in (acquisition, pairing, subject, timestamps)):
+        if any(len(x) != frame_count for x in (acquisition, pairing, subject, timestamps, frame_timestamps)):
             raise ValueError("Metadata/timestamp arrays are not frame-aligned")
 
         mapping_first = raw_indices[0]
@@ -82,8 +83,12 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             subject_values = _constant_or_values(subject[start:end])
             ts = timestamps[start:end]
             dt = np.diff(ts)
-            monotonic = bool(len(ts) >= 2 and np.all(dt > 0))
-            median_dt = float(np.median(dt)) if len(dt) else None
+            positive_dt = int(np.sum(dt > 0))
+            zero_dt = int(np.sum(dt == 0))
+            negative_dt = int(np.sum(dt < 0))
+            monotonic = bool(len(ts) >= 2 and negative_dt == 0)
+            median_dt = float(np.median(dt[dt > 0])) if positive_dt else None
+            frame_dt = np.diff(frame_timestamps[start:end])
             duration = float(ts[-1] - ts[0]) if len(ts) >= 2 else 0.0
             is_gloved = acq_values == ["gloved_hand"]
             is_direct = pair_values == ["direct"]
@@ -96,7 +101,12 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
                 "frame_count": end - start,
                 "duration_seconds": duration,
                 "sampling_interval_median_seconds": median_dt,
-                "timestamps_strictly_increasing": monotonic,
+                "timestamps_non_decreasing": monotonic,
+                "timestamp_positive_interval_count": positive_dt,
+                "timestamp_duplicate_interval_count": zero_dt,
+                "timestamp_negative_interval_count": negative_dt,
+                "frame_timestamp_negative_interval_count": int(np.sum(frame_dt < 0)),
+                "frame_timestamp_duplicate_interval_count": int(np.sum(frame_dt == 0)),
                 "acquisition_mode_values": acq_values,
                 "pairing_quality_values": pair_values,
                 "subject_id_values": subject_values,
@@ -132,11 +142,21 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             "layout_positions": int(len(mapping_first)),
             "unique_raw_sensor_indices_in_first_frame": len(unique_indices),
             "raw_sensor_indices_first_frame": [int(x) for x in mapping_first.tolist()],
-            "timestamps": {
+            "tactile_timestamps": {
                 "strictly_increasing": bool(np.all(np.diff(timestamps) > 0)),
-                "median_interval_seconds": float(np.median(np.diff(timestamps))),
+                "non_decreasing": bool(np.all(np.diff(timestamps) >= 0)),
+                "positive_interval_count": int(np.sum(np.diff(timestamps) > 0)),
+                "duplicate_interval_count": int(np.sum(np.diff(timestamps) == 0)),
+                "negative_interval_count": int(np.sum(np.diff(timestamps) < 0)),
+                "median_positive_interval_seconds": float(np.median(np.diff(timestamps)[np.diff(timestamps) > 0])),
                 "interval_p01_seconds": float(np.percentile(np.diff(timestamps), 1)),
                 "interval_p99_seconds": float(np.percentile(np.diff(timestamps), 99)),
+            },
+            "frame_timestamps": {
+                "strictly_increasing": bool(np.all(np.diff(frame_timestamps) > 0)),
+                "duplicate_interval_count": int(np.sum(np.diff(frame_timestamps) == 0)),
+                "negative_interval_count": int(np.sum(np.diff(frame_timestamps) < 0)),
+                "median_positive_interval_seconds": float(np.median(np.diff(frame_timestamps)[np.diff(frame_timestamps) > 0])),
             },
             "pressure_statistics_162": pressure_stats,
             "episode_counts": {
@@ -148,7 +168,7 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             "episodes": episodes,
             "video_decoded": False,
             "limitations": [
-                "Only pressure and permitted metadata arrays were read; RGB arrays were not accessed.",
+                "Only pressure, timestamps, and permitted metadata arrays were read; RGB arrays were not accessed.",
                 "3-second duration eligibility is preliminary and is not a final contact-window eligibility decision.",
                 "The literal pairing_quality value 'direct' is checked explicitly; any other value remains excluded pending schema review.",
                 "Regional mapping and contact-onset rules are not yet frozen by this script.",
