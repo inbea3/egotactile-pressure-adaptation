@@ -1,0 +1,35 @@
+name: EgoTactile sensor mapping specification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/build_sensor_mapping.py"
+      - ".github/workflows/egotactile-sensor-mapping.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-mapping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install audit dependency
+        run: python -m pip install --upgrade huggingface_hub
+      - name: Fetch official note
+        run: python scripts/fetch_tactile_mapping_note.py --output results/egotactile_mapping_note_audit.json
+      - name: Build physical sensor and region mapping
+        run: python scripts/build_sensor_mapping.py --input results/egotactile_mapping_note_audit.json --output results/egotactile_sensor_mapping.json
+      - name: Upload validated mapping
+        uses: actions/upload-artifact@v4
+        with:
+          name: egotactile-validated-sensor-mapping
+          path: |
+            results/egotactile_mapping_note_audit.json
+            results/egotactile_sensor_mapping.json
+          retention-days: 30
