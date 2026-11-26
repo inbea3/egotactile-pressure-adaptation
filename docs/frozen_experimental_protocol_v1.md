@@ -39,9 +39,27 @@ Never treat 162 layout cells as 162 independent physical sensors. A physical sen
 
 Before target construction, verify mapping JSON, index range, duplicate indices, units, and source-to-OXT equality on sampled frames. Keep a machine-readable mapping manifest and tests.
 
-## 4. Trajectory inventory (Stage 0)
+## 4. Recording and repetition units (critical clarification)
 
-Build one row per source trajectory with:
+The OXT `episode_ends` unit is a **participant-object recording**, not one individual grasp repetition. The EgoTactile paper's acquisition protocol states that each participant performs five repetitions per object, each containing approach, contact, grasp/hold, release, and retreat, taking approximately six seconds; one participant-object recording therefore contains about five repeated grasp cycles over roughly 30 seconds.
+
+For this study:
+- one OXT episode = one participant-object recording;
+- one recording contains approximately five nested grasp repetitions;
+- one K-shot Support sample = one complete participant-object recording from one participant;
+- Query must be a different participant's complete recording for the same held-out object;
+- never split the five repetitions from one participant-object recording across Support and Query;
+- repeated grasp cycles are nested within participant and must not be treated as independent inferential units.
+
+Thus 1/2/5-shot means 1/2/5 distinct participant recordings, **not** 1/2/5 individual grasps. Primary inference remains at the named-object level; participant-level variability is explicitly modeled/described.
+
+The paper describes seven high-level categories. Raw OXT metadata may use finer labels (for example, Tools vs Electronics); map these to the paper's seven categories only for descriptive stratification, never silently relabel object identities.
+
+Source: https://arxiv.org/abs/2606.09243 (Appendix A.1.1 and acquisition protocol).
+
+## 5. Recording inventory (Stage 0)
+
+Build one row per participant-object recording with:
 - object name and upper-level category;
 - participant ID;
 - acquisition mode and pairing quality;
@@ -55,7 +73,7 @@ Build one row per source trajectory with:
 
 The 5-shot gate requires at least six independent eligible trajectories for an object (five support trajectories plus one query trajectory). Report counts at object and participant levels. Do not split frames from one trajectory to manufacture independent shots.
 
-## 5. Contact onset and windowing (Stage 1)
+## 6. Contact onset and windowing (Stage 1)
 
 Use actual tactile timestamps, not an assumed constant frame rate. Initial archive inspection found repeated tactile timestamps whose adjacent pressure vectors were identical in all repeated-timestamp rows in the three sampled objects. Therefore, within each episode, collapse consecutive rows with the same tactile timestamp only when their pressure vectors are exactly identical; retain one pressure sample at that timestamp. If equal timestamps carry different pressure vectors, flag the episode and do not silently average them. Process episodes independently because timestamps may reset at episode boundaries. Report duplicate, conflicting, and negative intervals. Use zero-order-hold time weighting over the resulting unique tactile timestamps, with an explicitly documented endpoint convention. Do not sort timestamps globally.
 
@@ -76,7 +94,7 @@ Primary windows after detected onset:
 
 No overlap. Require valid coverage of both windows and minimum timestamp coverage. If too many trajectories fail, any window change is exploratory, must be documented, and then frozen before Stage 2. Never tune windows using prediction performance.
 
-## 6. Target construction
+## 7. Target construction
 
 Primary target: future six-region relative load-share vector (thumb, index, middle, ring, little, palm), using the official sensor mapping. Reconstruct physical sensors by grouping the 162 layout channels by source raw index: keep single-cell sensors once and sum all six virtual cells for each bend sensor (each virtual cell stores one sixth of its physical sensor value). Then sum the 137 physical sensor values within each of the six regions. For each time sample, compute regional load and total load; define regional share only when total load exceeds the valid-load threshold frozen from signal-only diagnostics. Summarize the six shares over the future window using a predeclared time-weighted aggregation.
 
@@ -91,7 +109,7 @@ Pearson correlation matrices and r >= 0.7 edges are secondary sensitivity analys
 
 Input features must be computed only from the early window. Targets must be computed only from the future window. No future-derived information may enter normalization, feature selection, or input construction.
 
-## 7. Stage 2A — structure repeatability
+## 8. Stage 2A — structure repeatability
 
 For each object, compare future target vectors across independent trajectories. Compare within-object distances against between-object distances. Repeat the analysis stratified by participant and, where possible, on participant-disjoint pairs.
 
@@ -99,9 +117,9 @@ Report object-level distributions and the number of objects with within-object s
 
 This stage tests whether named-object-specific future structure is sufficiently repeatable to be a meaningful adaptation target.
 
-## 8. Stage 2B — no-model Support information test
+## 9. Stage 2B — no-model Support information test
 
-For each eligible held-out object, use K independent full trajectories as Support and a different full trajectory as Query. Repeat all valid Support/Query combinations where feasible.
+For each eligible held-out object, use K complete participant-object recordings from K distinct participants as Support and a different participant's complete recording as Query. Each recording retains its five nested grasp repetitions intact. Repeat valid participant-level Support/Query combinations where feasible.
 
 Compare:
 1. **Early persistence:** predict Query future structure using its own early structure.
@@ -119,7 +137,7 @@ Entry gate to neural models:
 
 If this gate fails, stop and revise the estimand/window/interaction definition. Do not proceed to Reptile merely to obtain a positive result.
 
-## 9. Outer split for neural experiments
+## 10. Outer split for neural experiments
 
 After Stage 2 passes, freeze object-disjoint train/validation/test sets. All trajectories of a named object remain in exactly one outer set. Stratify by upper-level category and participant coverage as far as the data allow, using metadata only.
 
@@ -127,7 +145,7 @@ Validation objects are used for model selection. Test objects remain untouched u
 
 Support and Query must always be distinct full trajectories. Add participant-disjoint sensitivity analysis where sample size permits.
 
-## 10. Stage 3 — model comparison
+## 11. Stage 3 — model comparison
 
 Compare in this order:
 1. simple Stage 2 baselines;
@@ -141,13 +159,13 @@ Primary metric: per-object mean structural MAE. Secondary: regional-share MAE, c
 
 No GNN in the first model comparison. Consider graph structure only after an MLP/meta-learning comparison demonstrates a meaningful unresolved structural limitation.
 
-## 11. Statistical unit and reporting
+## 12. Statistical unit and reporting
 
 The independent inferential unit is the named object. First average all episodes and repeated support/query combinations within each object. Then calculate object-level summaries and paired differences. Bootstrap objects, not frames, taxels, or episodes. Explicitly report small-n limitations.
 
 Report all seeds, failures, exclusions, per-object metrics, data checksums, code commit, configurations, and run logs. No cherry-picking objects or seeds.
 
-## 12. Execution order and stop/go
+## 13. Execution order and stop/go
 
 - Gate 0: inventory, mapping, and data-integrity tests.
 - Gate 1: freeze onset/windows and target definitions.
