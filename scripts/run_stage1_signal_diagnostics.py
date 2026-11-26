@@ -1,0 +1,319 @@
+#!/usr/bin/env python3
+"""Signal-only Stage 1 diagnostics on a metadata-stratified EgoTactile object sample.
+
+No models are trained. Only pressure, tactile timestamps, episode boundaries and
+permitted metadata are read. RGB/video arrays are never accessed.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
+import zarr
+from huggingface_hub import hf_hub_download
+
+try:
+    from .build_sensor_mapping import build_sensor_mapping
+except ImportError:
+    from build_sensor_mapping import build_sensor_mapping
+
+REPO_ID = "HustleHard/EgoTactile-OXT"
+REVISION = "5b05f19e613758e76c330671f4c9f3c06af8af44"
+DEFAULT_OBJECTS = (
+    "Apple,CannedLuncheonMeat,BodyWash,SprayBottle,Clip,TapeMeasure,"
+    "Dumbbell,TennisBall,ElectricToothbrush,PowerBank-20000mAh,GlassBowl,Mug"
+)
+
+
+def deduplicate_episode(ts: np.ndarray, pressure: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
+    if len(ts) != len(pressure):
+        raise ValueError("timestamp/pressure length mismatch")
+    keep = np.ones(len(ts), dtype=bool)
+    conflict_count = 0
+    negative_count = 0
+    for i in range(1, len(ts)):
+        delta = ts[i] - ts[i - 1]
+        if delta < 0:
+            negative_count += 1
+        elif delta == 0:
+            if np.array_equal(pressure[i], pressure[i - 1]):
+                keep[i] = False
+            else:
+                conflict_count += 1
+    valid = negative_count == 0 and conflict_count == 0
+    return ts[keep], pressure[keep], {
+        "negative_interval_count": negative_count,
+        "duplicate_rows_removed": int((~keep).sum()),
+        "duplicate_pressure_conflict_count": conflict_count,
+        "timestamp_pressure_integrity_ok": valid,
+    }
+
+
+def find_sustained_onset(ts: np.ndarray, condition: np.ndarray, run_length: int = 3, max_gap: float = 0.5) -> int | None:
+    if len(ts) != len(condition):
+        raise ValueError("condition/timestamp length mismatch")
+    for start in range(0, len(condition) - run_length + 1):
+        stop = start + run_length
+        if not bool(np.all(condition[start:stop])):
+            continue
+        if bool(np.all(np.diff(ts[start:stop]) > 0)) and bool(np.all(np.diff(ts[start:stop]) <= max_gap)):
+            return start
+    return None
+
+
+def _strings(array) -> np.ndarray:
+    return np.char.strip(np.asarray(array[:]).astype(str))
+
+
+def _window_counts(ts: np.ndarray, onset_index: int) -> dict:
+    onset = float(ts[onset_index])
+    early_end = onset + 1.0
+    future_end = onset + 3.0
+    early = (ts >= onset) & (ts < early_end)
+    future = (ts >= early_end) & (ts < future_end)
+    return {
+        "onset_seconds_from_episode_start": onset - float(ts[0]),
+        "early_sample_count": int(early.sum()),
+        "future_sample_count": int(future.sum()),
+        "early_window_covered": bool(ts[0] <= onset and ts[-1] >= early_end),
+        "future_window_covered": bool(ts[-1] >= future_end),
+        "early_future_windows_disjoint": True,
+    }
+
+
+def _physical_and_region_loads(pressure_162: np.ndarray, mapping: dict) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+    physical_columns = []
+    physical_regions = []
+    for sensor in mapping["physical_sensors"]:
+        channels = sensor["layout_channels"]
+        if sensor["multiplicity"] == 6:
+            values = pressure_162[:, channels].sum(axis=1)
+        else:
+            values = pressure_162[:, channels[0]]
+        physical_columns.append(values)
+        physical_regions.append(sensor["region"])
+    physical = np.column_stack(physical_columns)
+    region_loads = {}
+    for region in ("thumb", "index", "middle", "ring", "little", "palm"):
+        indices = [i for i, value in enumerate(physical_regions) if value == region]
+        region_loads[region] = physical[:, indices].sum(axis=1)
+    return physical, region_loads
+
+
+def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
+    store = zarr.ZipStore(str(archive_path), mode="r")
+    try:
+        root = zarr.open_group(store=store, path=f"{object_name}.zarr", mode="r")
+        data = root["data"]
+        ends = np.asarray(root["meta"]["episode_ends"][:], dtype=np.int64)
+        pressure = np.asarray(data["right_tactile_data_pressure"][:], dtype=np.float32)
+        tactile_ts = np.asarray(data["tactile_timestamps"][:], dtype=np.float64)
+        acquisition = _strings(data["acquisition_mode"])
+        pairing = _strings(data["pairing_quality"])
+        subjects = _strings(data["subject_id"])
+        categories = _strings(data["object_category"])
+        materials = _strings(data["object_surface_material"])
+        fill_states = _strings(data["object_fill_state"])
+
+        if pressure.shape[1] != 162 or pressure.shape[0] != len(tactile_ts):
+            raise ValueError(f"Unexpected pressure/time shape for {object_name}")
+
+        rows = []
+        start = 0
+        for ep_index, end_value in enumerate(ends.tolist()):
+            end = int(end_value)
+            acq_values = sorted(set(acquisition[start:end].tolist()))
+            pair_values = sorted(set(pairing[start:end].tolist()))
+            subject_values = sorted(set(subjects[start:end].tolist()))
+            category_values = sorted(set(categories[start:end].tolist()))
+            material_values = sorted(set(materials[start:end].tolist()))
+            fill_values = sorted(set(fill_states[start:end].tolist()))
+            if acq_values != ["gloved_hand"] or pair_values != ["direct"] or len(subject_values) != 1:
+                start = end
+                continue
+
+            ts, p162, time_qc = deduplicate_episode(
+                tactile_ts[start:end], pressure[start:end]
+            )
+            row = {
+                "episode_index": ep_index,
+                "subject_id": subject_values[0],
+                "category_values": category_values,
+                "surface_material_values": material_values,
+                "fill_state_values": fill_values,
+                "raw_frame_count": end - start,
+                **time_qc,
+            }
+            start = end
+            if not time_qc["timestamp_pressure_integrity_ok"] or len(ts) < 2:
+                row["excluded_from_signal_diagnostics"] = True
+                rows.append(row)
+                continue
+
+            physical, regions = _physical_and_region_loads(p162, mapping)
+            # Apply the paper's 5 N per-sensor threshold as a diagnostic candidate only.
+            active = physical > 5.0
+            total_raw = physical.sum(axis=1)
+            total_excess = np.maximum(physical - 5.0, 0.0).sum(axis=1)
+            active_count = active.sum(axis=1)
+            conditions = {
+                "any_sensor_gt_5N_3samples": active_count >= 1,
+                "two_sensors_gt_5N_3samples": active_count >= 2,
+                "total_load_gt_5N_3samples": total_raw > 5.0,
+                "sum_excess_over_5N_gt_5N_3samples": total_excess > 5.0,
+            }
+            candidates = {}
+            for name, condition in conditions.items():
+                onset_index = find_sustained_onset(ts, condition, run_length=3, max_gap=0.5)
+                candidates[name] = (
+                    None if onset_index is None else _window_counts(ts, onset_index)
+                )
+
+            positive_dt = np.diff(ts)
+            row.update({
+                "excluded_from_signal_diagnostics": False,
+                "deduplicated_sample_count": int(len(ts)),
+                "episode_duration_seconds": float(ts[-1] - ts[0]),
+                "median_positive_tactile_interval_seconds": float(np.median(positive_dt[positive_dt > 0])),
+                "max_positive_tactile_gap_seconds": float(np.max(positive_dt[positive_dt > 0])),
+                "pressure_finite_fraction": float(np.isfinite(p162).mean()),
+                "physical_sensor_count": int(physical.shape[1]),
+                "median_active_physical_sensors_gt_5N": float(np.median(active_count)),
+                "p95_active_physical_sensors_gt_5N": float(np.percentile(active_count, 95)),
+                "total_load_p50_N": float(np.percentile(total_raw, 50)),
+                "total_load_p95_N": float(np.percentile(total_raw, 95)),
+                "total_load_p99_N": float(np.percentile(total_raw, 99)),
+                "candidate_onsets": candidates,
+                "region_load_p95_N": {
+                    key: float(np.percentile(value, 95)) for key, value in regions.items()
+                },
+            })
+            rows.append(row)
+
+        return {
+            "object_name": object_name,
+            "frame_count": int(pressure.shape[0]),
+            "episode_count": int(len(ends)),
+            "metadata_category_values": sorted(set(categories.tolist())),
+            "direct_gloved_episodes_audited": len(rows),
+            "episodes": rows,
+        }
+    finally:
+        store.close()
+
+
+def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
+    note_path = Path(hf_hub_download(
+        repo_id=REPO_ID, repo_type="dataset",
+        filename="supplementary_tactile_note.json",
+        revision=REVISION, cache_dir=cache_dir,
+    ))
+    mapping = build_sensor_mapping({
+        "revision": REVISION,
+        "raw_mapping_note": json.loads(note_path.read_text(encoding="utf-8")),
+    })
+    results = []
+    for i, object_name in enumerate(objects, start=1):
+        if not object_name or "/" in object_name or "\\" in object_name or ".." in object_name:
+            raise ValueError(f"Unsafe object name: {object_name!r}")
+        archive = Path(hf_hub_download(
+            repo_id=REPO_ID, repo_type="dataset",
+            filename=f"EgoTactile/{object_name}.zip",
+            revision=REVISION, cache_dir=cache_dir,
+        ))
+        result = _audit_object(object_name, archive, mapping)
+        results.append(result)
+        print(json.dumps({
+            "progress": f"{i}/{len(objects)}",
+            "object": object_name,
+            "category": result["metadata_category_values"],
+            "direct_gloved_episodes": result["direct_gloved_episodes_audited"],
+        }), flush=True)
+
+    all_episodes = [ep for obj in results for ep in obj["episodes"]]
+    valid = [ep for ep in all_episodes if not ep["excluded_from_signal_diagnostics"]]
+    candidate_names = [
+        "any_sensor_gt_5N_3samples",
+        "two_sensors_gt_5N_3samples",
+        "total_load_gt_5N_3samples",
+        "sum_excess_over_5N_gt_5N_3samples",
+    ]
+    candidate_summary = {}
+    for name in candidate_names:
+        detected = [ep for ep in valid if ep["candidate_onsets"][name] is not None]
+        covered = [
+            ep for ep in detected
+            if ep["candidate_onsets"][name]["early_window_covered"]
+            and ep["candidate_onsets"][name]["future_window_covered"]
+        ]
+        candidate_summary[name] = {
+            "onset_detected_episodes": len(detected),
+            "early_and_future_windows_covered": len(covered),
+            "onset_time_median_seconds": (
+                float(np.median([ep["candidate_onsets"][name]["onset_seconds_from_episode_start"] for ep in detected]))
+                if detected else None
+            ),
+        }
+
+    report = {
+        "dataset": REPO_ID,
+        "revision": REVISION,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "objects_requested": objects,
+        "object_count": len(results),
+        "episodes_direct_gloved_audited": len(all_episodes),
+        "episodes_passing_timestamp_integrity": len(valid),
+        "object_categories": sorted({cat for x in results for cat in x["metadata_category_values"]}),
+        "candidate_onset_summary": candidate_summary,
+        "paper_threshold_reference": {
+            "per_sensor_noise_threshold_N": 5.0,
+            "normalization_reference_N": 200.0,
+            "interpretation": "5 N is a per-sensor noise-filter candidate from the paper, not a validated whole-hand contact-onset threshold.",
+        },
+        "sensor_mapping": {
+            "layout_positions": mapping["layout_positions"],
+            "unique_physical_sensors": mapping["unique_physical_sensors"],
+            "regions": [
+                {k: x[k] for k in ("region", "unique_physical_sensor_count")}
+                for x in mapping["regions"]
+            ],
+        },
+        "objects": results,
+        "video_decoded": False,
+        "model_training_performed": False,
+        "limitations": [
+            "Exploratory signal-only diagnostics; onset candidates are not frozen.",
+            "No model performance was examined or used to select thresholds.",
+            "Only directly paired gloved-hand trajectories are included.",
+            "Pressure and timestamps only; RGB/video arrays are not read.",
+        ],
+    }
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return report
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--objects", default=DEFAULT_OBJECTS)
+    parser.add_argument("--cache-dir", type=Path, default=Path("/tmp/egotactile_stage1_cache"))
+    parser.add_argument("--output", type=Path, default=Path("results/egotactile_stage1_signal_diagnostics.json"))
+    args = parser.parse_args()
+    objects = [x.strip() for x in args.objects.split(",") if x.strip()]
+    report = run_diagnostics(objects, args.cache_dir, args.output)
+    print(json.dumps({
+        "objects": report["object_count"],
+        "categories": report["object_categories"],
+        "episodes": report["episodes_direct_gloved_audited"],
+        "timestamp_valid_episodes": report["episodes_passing_timestamp_integrity"],
+        "candidate_onsets": report["candidate_onset_summary"],
+        "output": str(args.output),
+    }, indent=2))
+
+
+if __name__ == "__main__":
+    main()
