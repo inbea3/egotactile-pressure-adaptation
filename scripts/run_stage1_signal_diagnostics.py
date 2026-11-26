@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+from scipy.signal import find_peaks
 import zarr
 from huggingface_hub import hf_hub_download
 
@@ -125,6 +126,109 @@ def detect_contact_segments(
             "ended_by_timestamp_gap": False,
         })
     return segments
+
+
+
+def _time_weighted_mean(ts: np.ndarray, values: np.ndarray, start: float, end: float) -> np.ndarray:
+    weighted = np.zeros(values.shape[1:], dtype=np.float64)
+    total_duration = 0.0
+    for i in range(len(ts) - 1):
+        left = max(float(ts[i]), start)
+        right = min(float(ts[i + 1]), end)
+        if right > left:
+            duration = right - left
+            weighted += values[i] * duration
+            total_duration += duration
+    if total_duration <= 0:
+        return np.full(values.shape[1:], np.nan)
+    return weighted / total_duration
+
+
+def detect_grasp_cycle_candidates(
+    ts: np.ndarray,
+    total_load: np.ndarray,
+    region_loads: dict[str, np.ndarray],
+    prominence_fraction: float = 0.25,
+    min_peak_distance_seconds: float = 3.0,
+    rise_fraction: float = 0.20,
+) -> dict:
+    """Exploratory pressure-peak cycle detector; not yet a frozen event label."""
+    if len(ts) < 10 or len(total_load) != len(ts):
+        return {"peak_count": 0, "cycles": []}
+    dt = float(np.median(np.diff(ts)))
+    if not np.isfinite(dt) or dt <= 0:
+        return {"peak_count": 0, "cycles": []}
+    smooth_window = max(3, int(round(0.33 / dt)))
+    if smooth_window % 2 == 0:
+        smooth_window += 1
+    smooth = np.convolve(total_load, np.ones(smooth_window) / smooth_window, mode="same")
+    dynamic_range = float(np.percentile(smooth, 95) - np.percentile(smooth, 10))
+    if dynamic_range <= 0:
+        return {"peak_count": 0, "cycles": []}
+    peaks, properties = find_peaks(
+        smooth,
+        distance=max(1, int(round(min_peak_distance_seconds / dt))),
+        prominence=prominence_fraction * dynamic_range,
+    )
+    cycles = []
+    for peak_pos, peak in enumerate(peaks):
+        left_bound = 0 if peak_pos == 0 else int((peaks[peak_pos - 1] + peak) // 2)
+        trough = left_bound + int(np.argmin(smooth[left_bound:peak + 1]))
+        base = float(smooth[trough])
+        peak_value = float(smooth[peak])
+        crossing = base + rise_fraction * max(0.0, peak_value - base)
+        onset = None
+        for i in range(trough, max(trough, peak - 2)):
+            if np.all(smooth[i:i + 3] >= crossing):
+                onset = i
+                break
+        if onset is None:
+            onset = int(peak)
+        next_onset = None
+        if peak_pos + 1 < len(peaks):
+            next_peak = int(peaks[peak_pos + 1])
+            next_left = int((peak + next_peak) // 2)
+            next_trough = next_left + int(np.argmin(smooth[next_left:next_peak + 1]))
+            next_base = float(smooth[next_trough])
+            next_cross = next_base + rise_fraction * max(0.0, float(smooth[next_peak]) - next_base)
+            for j in range(next_trough, max(next_trough, next_peak - 2)):
+                if np.all(smooth[j:j + 3] >= next_cross):
+                    next_onset = j
+                    break
+            if next_onset is None:
+                next_onset = next_peak
+        start_time = float(ts[onset])
+        early_end = start_time + 1.0
+        future_end = start_time + 3.0
+        early_count = int(np.sum((ts >= start_time) & (ts < early_end)))
+        future_count = int(np.sum((ts >= early_end) & (ts < future_end)))
+        window_covered = bool(ts[-1] >= future_end and (next_onset is None or ts[next_onset] >= future_end))
+        region_matrix = np.column_stack([region_loads[k] for k in ("thumb", "index", "middle", "ring", "little", "palm")])
+        future_regions = _time_weighted_mean(ts, region_matrix, early_end, future_end)
+        future_total = float(np.nansum(future_regions))
+        shares = (
+            (future_regions / future_total).tolist()
+            if np.isfinite(future_total) and future_total > 5.0 else None
+        )
+        cycles.append({
+            "cycle_index": peak_pos,
+            "onset_seconds_from_recording_start": start_time - float(ts[0]),
+            "peak_seconds_from_recording_start": float(ts[peak]) - float(ts[0]),
+            "peak_total_load_N_smoothed": peak_value,
+            "local_baseline_N_smoothed": base,
+            "peak_prominence_N": float(properties["prominences"][peak_pos]),
+            "early_sample_count": early_count,
+            "future_sample_count": future_count,
+            "early_future_window_covered_without_next_cycle_overlap": window_covered,
+            "future_region_load_share": shares,
+            "future_total_load_mean_N": future_total,
+        })
+    return {
+        "peak_count": int(len(peaks)),
+        "prominence_fraction": prominence_fraction,
+        "minimum_peak_distance_seconds": min_peak_distance_seconds,
+        "cycles": cycles,
+    }
 
 
 def _strings(array) -> np.ndarray:
@@ -296,6 +400,13 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
                 "total_load_p95_N": float(np.percentile(total_raw, 95)),
                 "total_load_p99_N": float(np.percentile(total_raw, 99)),
                 "candidate_onsets": candidates,
+                "grasp_cycle_candidates": {
+                    str(prom): detect_grasp_cycle_candidates(
+                        ts, total_raw, regions, prominence_fraction=prom,
+                        min_peak_distance_seconds=3.0, rise_fraction=0.20
+                    )
+                    for prom in (0.15, 0.20, 0.25, 0.30)
+                },
                 "region_load_p95_N": {
                     key: float(np.percentile(value, 95)) for key, value in regions.items()
                 },
@@ -382,6 +493,18 @@ def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
             "recordings_with_exactly_five_segments": sum(x == 5 for x in cycle_counts),
         }
 
+    cycle_summary = {}
+    for prom in (0.15, 0.20, 0.25, 0.30):
+        counts = [
+            ep["grasp_cycle_candidates"][str(prom)]["peak_count"]
+            for ep in valid if "grasp_cycle_candidates" in ep
+        ]
+        cycle_summary[str(prom)] = {
+            "recording_cycle_count_distribution": dict(Counter(counts)),
+            "recordings_with_exactly_five_cycles": sum(x == 5 for x in counts),
+            "recordings_evaluated": len(counts),
+        }
+
     report = {
         "dataset": REPO_ID,
         "revision": REVISION,
@@ -392,6 +515,7 @@ def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
         "episodes_passing_timestamp_integrity": len(valid),
         "object_categories": sorted({cat for x in results for cat in x["metadata_category_values"]}),
         "candidate_onset_summary": candidate_summary,
+        "grasp_cycle_detection_sensitivity": cycle_summary,
         "timestamp_semantics": {
             "pressure_time_axis": "data.timestamps (synchronized 15 Hz master clock)",
             "auxiliary_source_clock": "data.tactile_timestamps (glove source update time; repeated values indicate a held latest readout at a master tick)",
