@@ -173,6 +173,10 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
         data = root["data"]
         ends = np.asarray(root["meta"]["episode_ends"][:], dtype=np.int64)
         pressure = np.asarray(data["right_tactile_data_pressure"][:], dtype=np.float32)
+        # `timestamps` is the synchronized master-clock timeline for the pressure sequence.
+        # `tactile_timestamps` records source glove update times and may repeat when a
+        # previous glove readout is held at a later master tick.
+        master_ts = np.asarray(data["timestamps"][:], dtype=np.float64)
         tactile_ts = np.asarray(data["tactile_timestamps"][:], dtype=np.float64)
         acquisition = _strings(data["acquisition_mode"])
         pairing = _strings(data["pairing_quality"])
@@ -181,7 +185,7 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
         materials = _strings(data["object_surface_material"])
         fill_states = _strings(data["object_fill_state"])
 
-        if pressure.shape[1] != 162 or pressure.shape[0] != len(tactile_ts):
+        if pressure.shape[1] != 162 or pressure.shape[0] != len(master_ts) or len(tactile_ts) != len(master_ts):
             raise ValueError(f"Unexpected pressure/time shape for {object_name}")
 
         rows = []
@@ -198,9 +202,27 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
                 start = end
                 continue
 
-            ts, p162, time_qc = deduplicate_episode(
-                tactile_ts[start:end], pressure[start:end]
-            )
+            ts = master_ts[start:end]
+            p162 = pressure[start:end]
+            master_dt = np.diff(ts)
+            source_tactile_ts = tactile_ts[start:end]
+            source_tactile_dt = np.diff(source_tactile_ts)
+            source_duplicate_mask = source_tactile_dt == 0
+            source_duplicate_pressure_mismatch = 0
+            if source_duplicate_mask.any():
+                source_duplicate_pressure_mismatch = int(np.sum(np.any(
+                    p162[1:][source_duplicate_mask] != p162[:-1][source_duplicate_mask], axis=1
+                )))
+            time_qc = {
+                "negative_master_interval_count": int(np.sum(master_dt < 0)),
+                "duplicate_master_interval_count": int(np.sum(master_dt == 0)),
+                "master_timestamp_finite": bool(np.isfinite(ts).all()),
+                "tactile_source_duplicate_interval_count": int(source_duplicate_mask.sum()),
+                "tactile_source_duplicate_pressure_mismatch_count": source_duplicate_pressure_mismatch,
+                "timestamp_pressure_integrity_ok": bool(
+                    np.isfinite(ts).all() and np.all(master_dt > 0) and np.isfinite(p162).all()
+                ),
+            }
             row = {
                 "episode_index": ep_index,
                 "subject_id": subject_values[0],
@@ -259,12 +281,13 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
                 }
 
             positive_dt = np.diff(ts)
+            relative_ts = ts - ts[0]
             row.update({
                 "excluded_from_signal_diagnostics": False,
-                "deduplicated_sample_count": int(len(ts)),
+                "master_sample_count": int(len(ts)),
                 "episode_duration_seconds": float(ts[-1] - ts[0]),
-                "median_positive_tactile_interval_seconds": float(np.median(positive_dt[positive_dt > 0])),
-                "max_positive_tactile_gap_seconds": float(np.max(positive_dt[positive_dt > 0])),
+                "median_master_interval_seconds": float(np.median(positive_dt)),
+                "max_master_interval_seconds": float(np.max(positive_dt)),
                 "pressure_finite_fraction": float(np.isfinite(p162).mean()),
                 "physical_sensor_count": int(physical.shape[1]),
                 "median_active_physical_sensors_gt_5N": float(np.median(active_count)),
@@ -279,10 +302,10 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
                 "time_binned_pressure_trace_0p5s": [
                     {
                         "time_bin_start_seconds": float(left),
-                        "total_load_mean_N": float(total_raw[(ts >= left) & (ts < left + 0.5)].mean()) if np.any((ts >= left) & (ts < left + 0.5)) else None,
-                        "active_sensor_count_mean_gt_5N": float(active_count[(ts >= left) & (ts < left + 0.5)].mean()) if np.any((ts >= left) & (ts < left + 0.5)) else None,
+                        "total_load_mean_N": float(total_raw[(relative_ts >= left) & (relative_ts < left + 0.5)].mean()) if np.any((relative_ts >= left) & (relative_ts < left + 0.5)) else None,
+                        "active_sensor_count_mean_gt_5N": float(active_count[(relative_ts >= left) & (relative_ts < left + 0.5)].mean()) if np.any((relative_ts >= left) & (relative_ts < left + 0.5)) else None,
                         "region_load_mean_N": {
-                            key: float(value[(ts >= left) & (ts < left + 0.5)].mean()) if np.any((ts >= left) & (ts < left + 0.5)) else None
+                            key: float(value[(relative_ts >= left) & (relative_ts < left + 0.5)].mean()) if np.any((relative_ts >= left) & (relative_ts < left + 0.5)) else None
                             for key, value in regions.items()
                         },
                     }
