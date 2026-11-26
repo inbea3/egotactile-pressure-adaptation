@@ -25,7 +25,7 @@ def validate_mapping_arrays(mapping: dict, raw_indices: np.ndarray, grid_xy: np.
         dtype=np.int64,
     )
     expected_grid = np.asarray(
-        [[x["grid_y"], x["grid_x"]] for x in mapping["layout_channels"]],
+        [[x["grid_x"], x["grid_y"]] for x in mapping["layout_channels"]],
         dtype=np.int64,
     )
     if raw_indices.ndim != 2 or raw_indices.shape[1] != len(expected_raw):
