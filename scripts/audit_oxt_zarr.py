@@ -97,7 +97,19 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             negative_dt = int(np.sum(dt < 0))
             monotonic = bool(len(ts) >= 2 and negative_dt == 0)
             median_dt = float(np.median(dt[dt > 0])) if positive_dt else None
-            frame_dt = np.diff(frame_timestamps[start:end])
+            frame_ts = frame_timestamps[start:end]
+            frame_dt = np.diff(frame_ts)
+            duplicate_mask_ep = dt == 0
+            if duplicate_mask_ep.any():
+                duplicate_equal_ep = np.all(
+                    pressure_162[start + 1:end][duplicate_mask_ep] ==
+                    pressure_162[start:end - 1][duplicate_mask_ep], axis=1
+                )
+                duplicate_mismatch_count_ep = int((~duplicate_equal_ep).sum())
+            else:
+                duplicate_mismatch_count_ep = 0
+            frame_time_ok = bool(len(frame_ts) >= 2 and np.all(frame_dt >= 0))
+            timestamp_integrity_ok = bool(negative_dt == 0 and duplicate_mismatch_count_ep == 0 and frame_time_ok)
             duration = float(ts[-1] - ts[0]) if len(ts) >= 2 else 0.0
             is_gloved = acq_values == ["gloved_hand"]
             is_direct = pair_values == ["direct"]
@@ -116,6 +128,8 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
                 "timestamp_negative_interval_count": negative_dt,
                 "frame_timestamp_negative_interval_count": int(np.sum(frame_dt < 0)),
                 "frame_timestamp_duplicate_interval_count": int(np.sum(frame_dt == 0)),
+                "duplicate_timestamp_pressure_mismatch_count": duplicate_mismatch_count_ep,
+                "timestamp_integrity_ok": timestamp_integrity_ok,
                 "acquisition_mode_values": acq_values,
                 "pairing_quality_values": pair_values,
                 "subject_id_values": subject_values,
@@ -124,7 +138,7 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
                 "direct_pairing_only": is_direct,
                 "pressure_finite": pressure_ok,
                 "preliminary_3s_window_eligible": bool(
-                    is_gloved and is_direct and monotonic and duration >= 3.0 and pressure_ok
+                    is_gloved and is_direct and len(subject_values) == 1 and timestamp_integrity_ok and duration >= 3.0 and pressure_ok
                 ),
                 "eligibility_note": (
                     "Preliminary duration/signal check only; contact onset and target validity "
@@ -173,6 +187,8 @@ def audit_oxt_zarr_archive(archive_path: Path, object_name: str) -> dict:
             "episode_counts": {
                 "gloved_hand_only": sum(x["gloved_hand_only"] for x in episodes),
                 "direct_pairing_only": sum(x["direct_pairing_only"] for x in episodes),
+                "gloved_hand_direct": sum(x["gloved_hand_only"] and x["direct_pairing_only"] for x in episodes),
+                "timestamp_integrity_failures": sum(not x["timestamp_integrity_ok"] for x in episodes),
                 "preliminary_3s_window_eligible": len(eligible),
             },
             "eligible_trajectory_counts_by_participant": participant_counts,
