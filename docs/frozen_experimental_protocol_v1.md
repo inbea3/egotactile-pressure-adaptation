@@ -71,7 +71,7 @@ Build one row per participant-object recording with:
 - source archive path and SHA-256;
 - eligibility flag and explicit exclusion reason.
 
-The 5-shot gate requires at least six independent eligible trajectories for an object (five support trajectories plus one query trajectory). Report counts at object and participant levels. Do not split frames from one trajectory to manufacture independent shots.
+The 5-shot gate requires at least six eligible participant-object recordings from six distinct participants for an object (five Support participants plus one Query participant). Report counts at object and participant levels. Do not split frames or repeated grasp events from one participant recording to manufacture independent shots.
 
 ## 6. Contact onset and windowing (Stage 1)
 
