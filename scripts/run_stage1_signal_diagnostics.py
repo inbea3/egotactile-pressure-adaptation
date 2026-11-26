@@ -65,6 +65,68 @@ def find_sustained_onset(ts: np.ndarray, condition: np.ndarray, run_length: int 
     return None
 
 
+
+
+def detect_contact_segments(
+    ts: np.ndarray,
+    high_condition: np.ndarray,
+    low_condition: np.ndarray,
+    start_run: int = 3,
+    release_run: int = 3,
+    max_gap: float = 0.5,
+) -> list[dict]:
+    """Hysteresis segmentation; exploratory only, not a frozen detector."""
+    segments = []
+    state = "outside"
+    start_index = None
+    high_count = 0
+    low_count = 0
+    for i in range(len(ts)):
+        if i > 0 and ts[i] - ts[i - 1] > max_gap:
+            if state == "inside" and start_index is not None:
+                segments.append({
+                    "start_index": start_index,
+                    "end_index_exclusive": i,
+                    "duration_seconds": float(ts[i - 1] - ts[start_index]),
+                    "ended_by_timestamp_gap": True,
+                })
+            state = "outside"
+            start_index = None
+            high_count = 0
+            low_count = 0
+
+        if state == "outside":
+            high_count = high_count + 1 if bool(high_condition[i]) else 0
+            if high_count >= start_run:
+                start_index = i - start_run + 1
+                state = "inside"
+                low_count = 0
+        else:
+            low_count = low_count + 1 if bool(low_condition[i]) else 0
+            if low_count >= release_run:
+                end_index = i - release_run + 1
+                if start_index is not None and end_index > start_index:
+                    segments.append({
+                        "start_index": start_index,
+                        "end_index_exclusive": end_index,
+                        "duration_seconds": float(ts[end_index - 1] - ts[start_index]),
+                        "ended_by_timestamp_gap": False,
+                    })
+                state = "outside"
+                start_index = None
+                high_count = 0
+                low_count = 0
+
+    if state == "inside" and start_index is not None:
+        segments.append({
+            "start_index": start_index,
+            "end_index_exclusive": len(ts),
+            "duration_seconds": float(ts[-1] - ts[start_index]),
+            "ended_by_timestamp_gap": False,
+        })
+    return segments
+
+
 def _strings(array) -> np.ndarray:
     return np.char.strip(np.asarray(array[:]).astype(str))
 
@@ -167,11 +229,34 @@ def _audit_object(object_name: str, archive_path: Path, mapping: dict) -> dict:
                 "sum_excess_over_5N_gt_5N_3samples": total_excess > 5.0,
             }
             candidates = {}
+            cycle_conditions = {
+                "any_sensor_gt_5N": (active_count >= 1, active_count == 0),
+                "two_sensors_gt_5N": (active_count >= 2, active_count == 0),
+                "total_load_gt_5N": (total_raw > 5.0, total_raw < 2.5),
+                "sum_excess_over_5N_gt_5N": (total_excess > 5.0, total_excess < 2.5),
+            }
             for name, condition in conditions.items():
                 onset_index = find_sustained_onset(ts, condition, run_length=3, max_gap=0.5)
-                candidates[name] = (
-                    None if onset_index is None else _window_counts(ts, onset_index)
-                )
+                high_condition, low_condition = cycle_conditions[name]
+                segments = detect_contact_segments(ts, high_condition, low_condition, max_gap=0.5)
+                segment_windows = []
+                for segment in segments:
+                    start_idx = segment["start_index"]
+                    segment_windows.append({
+                        **segment,
+                        "early_future_window_covered": bool(
+                            ts[segment["end_index_exclusive"] - 1] >= ts[start_idx] + 3.0
+                        ),
+                    })
+                candidates[name] = {
+                    "first_onset": None if onset_index is None else _window_counts(ts, onset_index),
+                    "detected_contact_segments": segment_windows,
+                    "contact_segment_count": len(segment_windows),
+                    "median_segment_duration_seconds": (
+                        float(np.median([x["duration_seconds"] for x in segment_windows]))
+                        if segment_windows else None
+                    ),
+                }
 
             positive_dt = np.diff(ts)
             row.update({
@@ -254,9 +339,11 @@ def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
             "onset_detected_episodes": len(detected),
             "early_and_future_windows_covered": len(covered),
             "onset_time_median_seconds": (
-                float(np.median([ep["candidate_onsets"][name]["onset_seconds_from_episode_start"] for ep in detected]))
+                float(np.median([ep["candidate_onsets"][name]["first_onset"]["onset_seconds_from_episode_start"] for ep in detected]))
                 if detected else None
             ),
+            "contact_segments_per_recording_median": float(np.median(cycle_counts)) if cycle_counts else None,
+            "recordings_with_exactly_five_segments": sum(x == 5 for x in cycle_counts),
         }
 
     report = {
@@ -269,6 +356,12 @@ def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
         "episodes_passing_timestamp_integrity": len(valid),
         "object_categories": sorted({cat for x in results for cat in x["metadata_category_values"]}),
         "candidate_onset_summary": candidate_summary,
+        "paper_repetition_protocol": {
+            "repetitions_per_participant_object_recording": 5,
+            "approximate_seconds_per_repetition": 6,
+            "approximate_seconds_per_recording": 30,
+            "source": "EgoTactile paper Appendix A.1.1 Object Inventory and Attributes / acquisition protocol",
+        },
         "paper_threshold_reference": {
             "per_sensor_noise_threshold_N": 5.0,
             "normalization_reference_N": 200.0,
@@ -286,7 +379,8 @@ def run_diagnostics(objects: list[str], cache_dir: Path, output: Path) -> dict:
         "video_decoded": False,
         "model_training_performed": False,
         "limitations": [
-            "Exploratory signal-only diagnostics; onset candidates are not frozen.",
+            "One OXT episode is a participant-object recording that contains multiple repeated grasp cycles; it is not one single grasp repetition.",
+            "Exploratory signal-only diagnostics; onset candidates and cycle segmentation are not frozen.",
             "No model performance was examined or used to select thresholds.",
             "Only directly paired gloved-hand trajectories are included.",
             "Pressure and timestamps only; RGB/video arrays are not read.",
