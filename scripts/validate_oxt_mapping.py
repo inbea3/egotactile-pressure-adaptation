@@ -42,7 +42,7 @@ def validate_mapping_arrays(mapping: dict, raw_indices: np.ndarray, grid_xy: np.
 
     bend_groups = [
         x["layout_channels"] for x in mapping["physical_sensors"]
-        if x["multiplicity"] == 6
+        if x["multiplicity"] > 1
     ]
     bend_value_mismatch_count = 0
     for channels in bend_groups:
