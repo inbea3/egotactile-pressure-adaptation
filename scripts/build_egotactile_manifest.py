@@ -30,7 +30,7 @@ def build_manifest(revision: str = "main") -> dict:
             continue
         size = getattr(item, "size", None)
         lfs = getattr(item, "lfs", None)
-        if path.lower().endswith(".zip") or path.endswith("supplementary_tactile_note.json"):
+        if (path.startswith("EgoTactile/") and path.lower().endswith(".zip")) or path.endswith("supplementary_tactile_note.json"):
             files.append({
                 "path": path,
                 "size_bytes": size,
