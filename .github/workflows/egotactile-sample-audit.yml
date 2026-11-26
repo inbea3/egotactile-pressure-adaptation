@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install audit dependency
-        run: python -m pip install --upgrade huggingface_hub
+        run: python -m pip install --upgrade huggingface_hub "zarr<3" numcodecs
       - name: Download and inventory selected object archives
         env:
           OBJECTS: ${{ github.event.inputs.objects || 'Apple,SprayBottle,TennisBall' }}
