@@ -135,15 +135,28 @@ def residual_audit(data: dict, names: list[str], rng, repetitions: int) -> tuple
         people = data[heldout]
         other_names = [name for name in names if name != heldout]
         query_rows = []
+        actor_templates = {
+            subject: np.mean([data[name][subject]["delta"] for name in other_names if subject in data[name]], axis=0)
+            for subject in people
+            if any(subject in data[name] for name in other_names)
+        }
         for subject, query in people.items():
             object_template = object_mean(people, "delta", exclude_subject=subject)
             blocked_global = global_mean(data, other_names, "delta", exclude_subject=subject)
-            actor_rows = [data[name][subject]["delta"] for name in other_names if subject in data[name]]
-            actor_template = np.mean(actor_rows, axis=0) if actor_rows else None
+            actor_template = actor_templates.get(subject)
+            centered_support = [
+                people[other]["delta"] - actor_templates[other]
+                for other in people if other != subject and other in actor_templates
+            ]
+            centered_query = query["delta"] - actor_template if actor_template is not None else None
             query_rows.append({
                 "object": mae(query["delta"], object_template),
                 "blocked_global": mae(query["delta"], blocked_global),
                 "actor": mae(query["delta"], actor_template) if actor_template is not None else None,
+                "actor_centered_zero": mae(centered_query, np.zeros_like(centered_query))
+                if centered_query is not None else None,
+                "actor_centered_object": mae(centered_query, np.mean(centered_support, axis=0))
+                if centered_query is not None and centered_support else None,
             })
         rows.append({
             "object_name": heldout,
@@ -151,6 +164,10 @@ def residual_audit(data: dict, names: list[str], rng, repetitions: int) -> tuple
             "blocked_global_template_mae": float(np.mean([row["blocked_global"] for row in query_rows])),
             "actor_template_mae": float(np.mean([row["actor"] for row in query_rows if row["actor"] is not None]))
             if any(row["actor"] is not None for row in query_rows) else None,
+            "actor_centered_zero_mae": float(np.mean([row["actor_centered_zero"] for row in query_rows if row["actor_centered_zero"] is not None]))
+            if any(row["actor_centered_zero"] is not None for row in query_rows) else None,
+            "actor_centered_object_mae": float(np.mean([row["actor_centered_object"] for row in query_rows if row["actor_centered_object"] is not None]))
+            if any(row["actor_centered_object"] is not None for row in query_rows) else None,
         })
     differences = [row["blocked_global_template_mae"] - row["object_template_mae"] for row in rows]
     summary = {
@@ -163,6 +180,14 @@ def residual_audit(data: dict, names: list[str], rng, repetitions: int) -> tuple
     }
     actor = [row["actor_template_mae"] for row in rows if row["actor_template_mae"] is not None]
     summary["actor_template_mae"] = bootstrap_mean(actor, rng, repetitions) if actor else None
+    centered = [row for row in rows if row["actor_centered_zero_mae"] is not None and row["actor_centered_object_mae"] is not None]
+    if centered:
+        differences = [row["actor_centered_zero_mae"] - row["actor_centered_object_mae"] for row in centered]
+        summary["actor_centered_zero_minus_object_template"] = {
+            **bootstrap_mean(differences, rng, repetitions),
+            "objects_improved": int(np.sum(np.asarray(differences) > 0)),
+            "objects_evaluated": len(centered),
+        }
     return rows, summary
 
 
@@ -188,11 +213,23 @@ def evaluate_rule(stage1_report: dict, onset_rule: str, repetitions=5000, seed=2
                 actor_global = np.mean(actor, axis=0) if actor else None
                 support_people = [name for name in sorted(people) if name != subject]
                 support_errors, shrinkage_errors = [], []
+                actor_centered_errors, actor_centered_shrinkage_errors = [], []
+                support_actor_baselines = {
+                    name: np.mean([data[other][name]["delta"] for other in other_names if name in data[other]], axis=0)
+                    for name in support_people
+                    if any(name in data[other] for other in other_names)
+                }
                 for subset in itertools.combinations(support_people, shot):
                     support_delta = np.mean([people[name]["delta"] for name in subset], axis=0)
                     support_errors.append(mae(query["future"], project_rows(baseline + support_delta)))
                     correction = (1 - SUPPORT_WEIGHT) * blocked_global + SUPPORT_WEIGHT * support_delta
                     shrinkage_errors.append(mae(query["future"], project_rows(baseline + correction)))
+                    if actor_global is not None and all(name in support_actor_baselines for name in subset):
+                        object_effect = np.mean([
+                            people[name]["delta"] - support_actor_baselines[name] for name in subset
+                        ], axis=0)
+                        actor_centered_errors.append(mae(query["future"], project_rows(baseline + actor_global + object_effect)))
+                        actor_centered_shrinkage_errors.append(mae(query["future"], project_rows(baseline + actor_global + SUPPORT_WEIGHT * object_effect)))
                 query_rows.append({
                     "support_combinations": len(support_errors),
                     "persistence": mae(query["future"], baseline),
@@ -201,9 +238,13 @@ def evaluate_rule(stage1_report: dict, onset_rule: str, repetitions=5000, seed=2
                     "actor_global": mae(query["future"], project_rows(baseline + actor_global)) if actor_global is not None else None,
                     "support_delta": float(np.mean(support_errors)),
                     "fixed_quarter_shrinkage_blocked": float(np.mean(shrinkage_errors)),
+                    "actor_centered_support": float(np.mean(actor_centered_errors)) if actor_centered_errors else None,
+                    "actor_centered_quarter_shrinkage": float(np.mean(actor_centered_shrinkage_errors))
+                    if actor_centered_shrinkage_errors else None,
                 })
             methods = ("persistence", "global_known_subject", "global_query_subject_blocked",
-                       "actor_global", "support_delta", "fixed_quarter_shrinkage_blocked")
+                       "actor_global", "support_delta", "fixed_quarter_shrinkage_blocked",
+                       "actor_centered_support", "actor_centered_quarter_shrinkage")
             object_metrics[str(shot)].append({
                 "object_name": heldout,
                 "query_participants": len(query_rows),
@@ -223,6 +264,12 @@ def evaluate_rule(stage1_report: dict, onset_rule: str, repetitions=5000, seed=2
         for adapted in ("support_delta", "fixed_quarter_shrinkage_blocked"):
             differences = [row["metrics"]["global_query_subject_blocked"] - row["metrics"][adapted] for row in rows]
             paired[f"blocked_global_minus_{adapted}"] = {
+                **bootstrap_mean(differences, rng, repetitions),
+                "objects_improved": int(np.sum(np.asarray(differences) > 0)),
+            }
+        if all(row["metrics"]["actor_global"] is not None and row["metrics"]["actor_centered_quarter_shrinkage"] is not None for row in rows):
+            differences = [row["metrics"]["actor_global"] - row["metrics"]["actor_centered_quarter_shrinkage"] for row in rows]
+            paired["actor_global_minus_actor_centered_quarter_shrinkage"] = {
                 **bootstrap_mean(differences, rng, repetitions),
                 "objects_improved": int(np.sum(np.asarray(differences) > 0)),
             }
