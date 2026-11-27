@@ -2,7 +2,6 @@
   "stage": "Stage 3 exploratory MLP–Reptile pilot",
   "dataset": "EgoTactile-OXT Stage 1 full event inventory",
   "dataset_revision": "5b05f19e613758e76c330671f4c9f3c06af8af44",
-  "stage1_inventory_sha256": "cf291adbb2665ca1165c51e9f15d20834e38fa0fe00622b0b2f4586f0eb65f42",
   "onset_rule": "two_sensors_gt_5N_3samples",
   "scenario": "held-out object, known participant; same-object Support excludes Query participant",
   "split_and_support_subset_seed": 20261127,
@@ -621,5 +620,7 @@
       }
     }
   },
-  "full_object_metrics_location": "AutoDL /root/autodl-tmp/egotactile-pressure-adaptation/results/stage3_model_pilot_*.json"
+  "full_object_metrics_location": "AutoDL /root/autodl-tmp/egotactile-pressure-adaptation/results/stage3_model_pilot_*.json",
+  "stage1_inventory_sha256": "76cd77723d01904296deabfe7755ff489f609bc3c7284c6ea6c91c40f6afb65c",
+  "stage1_source_artifact_zip_sha256": "cf291adbb2665ca1165c51e9f15d20834e38fa0fe00622b0b2f4586f0eb65f42"
 }
