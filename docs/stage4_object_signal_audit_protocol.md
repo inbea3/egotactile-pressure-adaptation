@@ -20,7 +20,7 @@ The last two retain force magnitude while compressing its long upper tail. The t
 
 ## Descriptive variance audit
 
-For each target, flatten its four future rows and fit three ordinary least-squares descriptions to all eligible participant–object cells: object indicators alone, participant indicators alone, and their additive combination. Report the fraction of total squared deviation explained by each, and the **incremental object fraction after participant indicators**. With one record per cell, interaction, recording noise, and unmeasured covariates cannot be separated. These are descriptive fits, not out-of-sample adaptation scores or causal effects.
+For each target, flatten its four future rows and fit three ordinary least-squares descriptions to all eligible participant–object cells: object indicators alone, participant indicators alone, and their additive combination. Report the fraction of total squared deviation explained by each, and the **incremental object fraction after participant indicators**. Because 63 object indicators can explain noise merely through fitting, compare this fraction against 500 permutations of the response **within each participant**. This preserves participant means and missing-cell counts while breaking shared object structure. Report the permutation mean, 95th percentile, excess over the mean, and empirical upper-tail fraction. This correction was added after inspecting the first Stage 4 fits and is explicitly post hoc. With one record per cell, interaction, recording noise, and unmeasured covariates cannot be separated. These are descriptive fits, not out-of-sample adaptation scores or causal effects.
 
 ## Cross-participant prediction audit
 
