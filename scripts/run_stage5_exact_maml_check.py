@@ -69,6 +69,7 @@ def run(source, seed=20261127, iterations=1500, fold_index=0,
               "seed": seed, "fold_index": fold_index,
               "test_objects": test_names, "meta_iterations": iterations,
               "last_100_training_query_mse": training_loss,
+              "object_metrics": rows,
               "status": "exploratory inspected fold; no independent model selection"}
     for shot, values in rows.items():
         output[shot] = {
