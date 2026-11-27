@@ -75,6 +75,9 @@ class Stage3Tests(unittest.TestCase):
                             for row in report["object_metrics"]["5"]))
         self.assertIn("blocked_global_minus_fixed_quarter_shrinkage_blocked",
                       report["shot_summaries"]["5"]["paired_differences_positive_favors_adaptation"])
+        self.assertIn("actor_global_minus_actor_centered_quarter_shrinkage",
+                      report["shot_summaries"]["5"]["paired_differences_positive_favors_adaptation"])
+        self.assertIn("actor_centered_zero_minus_object_template", report["residual_summary"])
 
 
 if __name__ == "__main__":
