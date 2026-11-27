@@ -18,3 +18,7 @@ Both neural methods use an identical 12 → 32 → 32 → 24 ReLU residual MLP w
 
 Run three training seeds `20261127`, `20261128`, `20261129` while holding folds and Support combinations fixed. The primary paired comparison is MLP fine-tuned MAE minus Reptile adapted MAE, positive favoring Reptile. Also report each model's change after Support adaptation and comparisons to actor history plus fixed Support. CIs are conditional on a training seed; show seed variation separately. A negative result in this configuration is not proof that a tuned Reptile model cannot work. A positive result cannot be confirmatory because target and all objects have already been inspected.
 
+## Post-run optimization sensitivity
+
+After the fixed run showed severe Reptile underfitting, fold 0 was inspected at 500, 1,500, and 3,000 Reptile outer iterations. A further fold-0 diagnostic at 6,000 iterations tried test-time Support learning rates 0, 0.005, 0.01, 0.02, 0.05, and 0.1; 0.005 gave the lowest Reptile adapted MAE on that inspected fold. As a bounded **post hoc** sensitivity, rerun all five folds for one seed with 6,000 Reptile iterations, meta-training inner rate 0.05, Reptile test-time adaptation rate 0.005, and the original MLP adaptation rate 0.05. This checks whether the fixed-run gap was mainly optimization budget. Because fold 0 informed these settings and all folds were inspected in the fixed run, neither the fold-0 diagnostic nor the five-fold sensitivity is an independent model-selection result.
+
