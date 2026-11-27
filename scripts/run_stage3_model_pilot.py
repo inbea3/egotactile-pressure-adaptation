@@ -30,6 +30,7 @@ SHOTS = (1, 2, 5)
 METHODS = ("persistence", "global_transition", "actor_transition",
            "mlp_pretrained", "mlp_finetuned", "reptile_pretrained", "reptile_finetuned")
 LOSS_SCALE = 100.0
+SPLIT_SEED = 20261127
 
 
 class ResidualMLP(nn.Module):
@@ -204,7 +205,7 @@ def run(source, *, seed=20261127, fold_count=5, fold_limit=None, supervised_step
     torch.set_num_threads(1)
     data, inventory = extract_vectors(source, ONSET_RULE)
     names = sorted(data)
-    folds = object_folds(names, seed, fold_count)
+    folds = object_folds(names, SPLIT_SEED, fold_count)
     selected_folds = folds if fold_limit is None else folds[:fold_limit]
     if any(len(fold) == 0 for fold in selected_folds):
         raise ValueError("Empty test fold")
@@ -215,7 +216,7 @@ def run(source, *, seed=20261127, fold_count=5, fold_limit=None, supervised_step
         mlp = supervised_train(data, train_names, model_seed, supervised_steps, batch_size)
         reptile = reptile_train(data, train_names, model_seed, meta_iterations, inner_steps, inner_lr)
         fold_rows = evaluate_fold(data, train_names, test_names, mlp, reptile,
-                                  inner_steps, inner_lr, subsets_per_query, seed)
+                                  inner_steps, inner_lr, subsets_per_query, SPLIT_SEED)
         for shot in SHOTS:
             all_rows[str(shot)].extend(fold_rows[str(shot)])
         print(f"completed fold {fold_index + 1}/{len(selected_folds)} with {len(test_names)} objects", flush=True)
@@ -229,6 +230,7 @@ def run(source, *, seed=20261127, fold_count=5, fold_limit=None, supervised_step
         "inventory": inventory,
         "hyperparameters": {
             "seed": seed, "fold_count": fold_count, "supervised_steps": supervised_steps,
+            "split_and_support_subset_seed": SPLIT_SEED,
             "meta_iterations": meta_iterations, "inner_steps": inner_steps,
             "inner_lr": inner_lr, "batch_size": batch_size,
             "subsets_per_query": subsets_per_query, "loss_scale": LOSS_SCALE,
@@ -251,13 +253,14 @@ def main():
     parser.add_argument("--meta-iterations", type=int, default=500)
     parser.add_argument("--inner-steps", type=int, default=3)
     parser.add_argument("--inner-lr", type=float, default=0.05)
+    parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--subsets-per-query", type=int, default=5)
     parser.add_argument("--bootstrap-reps", type=int, default=5000)
     args = parser.parse_args()
     source = json.loads(args.input.read_text(encoding="utf-8"))
     result = run(source, seed=args.seed, fold_count=args.folds, fold_limit=args.fold_limit,
                  supervised_steps=args.supervised_steps, meta_iterations=args.meta_iterations,
-                 inner_steps=args.inner_steps, inner_lr=args.inner_lr,
+                 inner_steps=args.inner_steps, inner_lr=args.inner_lr, batch_size=args.batch_size,
                  subsets_per_query=args.subsets_per_query, bootstrap_reps=args.bootstrap_reps)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
