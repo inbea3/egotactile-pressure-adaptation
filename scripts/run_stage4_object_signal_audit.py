@@ -87,7 +87,8 @@ def fit_sse(design: np.ndarray, response: np.ndarray) -> float:
     return float(np.sum((response - design @ coefficient) ** 2))
 
 
-def variance_decomposition(data: dict, target: str) -> dict:
+def variance_decomposition(data: dict, target: str, permutation_reps: int = 500,
+                           seed: int = 20261127) -> dict:
     cells = [(name, actor, row[target].reshape(-1))
              for name, people in sorted(data.items()) for actor, row in sorted(people.items())]
     names = sorted(data)
@@ -102,16 +103,42 @@ def variance_decomposition(data: dict, target: str) -> dict:
         raise ValueError("Target has no variation")
     object_sse = fit_sse(object_design, response)
     actor_sse = fit_sse(actor_design, response)
-    additive_sse = fit_sse(np.column_stack((object_design, actor_design[:, 1:])), response)
+    additive_design = np.column_stack((object_design, actor_design[:, 1:]))
+    additive_sse = fit_sse(additive_design, response)
+    observed_object_increment = (actor_sse - additive_sse) / total
+    # Permute responses within participant. This retains participant means and
+    # the one-missing-cell pattern while breaking coordinated object effects.
+    rng = np.random.default_rng(seed)
+    actor_groups = [np.flatnonzero(actor_design[:, index]) for index in range(len(actors))]
+    actor_basis = np.linalg.qr(actor_design, mode="reduced")[0]
+    additive_basis = np.linalg.qr(additive_design, mode="reduced")[0]
+    null_values = []
+    for _ in range(permutation_reps):
+        shuffled = response.copy()
+        for group in actor_groups:
+            shuffled[group] = response[rng.permutation(group)]
+        actor_projection = actor_basis.T @ shuffled
+        additive_projection = additive_basis.T @ shuffled
+        null_values.append(float((np.sum(additive_projection ** 2)
+                                  - np.sum(actor_projection ** 2)) / total))
+    null = np.asarray(null_values)
     return {
         "cells": len(cells), "objects": len(names), "participants": len(actors),
         "dimensions": response.shape[1],
         "object_only_r2": 1 - object_sse / total,
         "participant_only_r2": 1 - actor_sse / total,
         "additive_r2": 1 - additive_sse / total,
-        "incremental_object_after_participant_fraction": (actor_sse - additive_sse) / total,
+        "incremental_object_after_participant_fraction": observed_object_increment,
         "incremental_participant_after_object_fraction": (object_sse - additive_sse) / total,
         "unexplained_fraction": additive_sse / total,
+        "object_increment_permutation_null": {
+            "repetitions": permutation_reps,
+            "mean": float(np.mean(null)),
+            "quantile_95": float(np.quantile(null, 0.95)),
+            "observed_minus_null_mean": float(observed_object_increment - np.mean(null)),
+            "empirical_upper_tail_p": float((1 + np.sum(null >= observed_object_increment))
+                                            / (permutation_reps + 1)),
+        },
     }
 
 
@@ -182,6 +209,7 @@ def cross_actor_prediction(data: dict, target: str, subsets_per_query: int,
 
 
 def run(source: dict, repetitions: int = 5000, subsets_per_query: int = 5,
+        permutation_reps: int = 500,
         seed: int = 20261127) -> dict:
     if source.get("revision") != REVISION or source.get("object_count") != 63:
         raise ValueError("Expected frozen full Stage 1 report")
@@ -189,6 +217,7 @@ def run(source: dict, repetitions: int = 5000, subsets_per_query: int = 5,
               "dataset_revision": REVISION, "seed": seed,
               "support_subset_seed": SPLIT_SEED,
               "bootstrap_repetitions": repetitions,
+              "permutation_repetitions": permutation_reps,
               "subsets_per_query": subsets_per_query,
               "onset_rules": {}}
     for rule in ONSET_RULES:
@@ -198,7 +227,8 @@ def run(source: dict, repetitions: int = 5000, subsets_per_query: int = 5,
             summaries, rows = cross_actor_prediction(data, target,
                                                       subsets_per_query, repetitions, seed)
             targets[target] = {
-                "variance_decomposition": variance_decomposition(data, target),
+                "variance_decomposition": variance_decomposition(
+                    data, target, permutation_reps, seed),
                 "shot_summaries": summaries,
                 "object_metrics": rows,
             }
@@ -211,11 +241,13 @@ def main() -> None:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--bootstrap-reps", type=int, default=5000)
+    parser.add_argument("--permutation-reps", type=int, default=500)
     parser.add_argument("--subsets-per-query", type=int, default=5)
     parser.add_argument("--seed", type=int, default=20261127)
     args = parser.parse_args()
     source = json.loads(args.input.read_text(encoding="utf-8"))
-    result = run(source, args.bootstrap_reps, args.subsets_per_query, args.seed)
+    result = run(source, args.bootstrap_reps, args.subsets_per_query,
+                 args.permutation_reps, args.seed)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n",
                            encoding="utf-8")
@@ -223,10 +255,13 @@ def main() -> None:
         print(rule, flush=True)
         for target, audit in report["targets"].items():
             v = audit["variance_decomposition"]
+            null = v["object_increment_permutation_null"]
             s = audit["shot_summaries"]["5"]
             gain = s["paired_differences_positive_favors_support"]["actor_history_minus_quarter_support"]
             print(target, "object_partial_r2", round(v["incremental_object_after_participant_fraction"], 6),
                   "actor_r2", round(v["participant_only_r2"], 6),
+                  "null_mean", round(null["mean"], 6),
+                  "null_p", round(null["empirical_upper_tail_p"], 6),
                   "actor_mae", round(s["methods"]["actor_history"]["mean"], 6),
                   "five_shot_quarter_gain", round(gain["mean"], 6),
                   "ci95", [round(x, 6) for x in gain["ci95"]],
