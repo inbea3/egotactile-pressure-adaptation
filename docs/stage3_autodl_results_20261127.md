@@ -53,4 +53,4 @@ MLP 微调在 1-shot 和 2-shot 均劣于其未适应模型；5-shot 的微小�
 
 ## 复现位置
 
-AutoDL 目录：`/root/autodl-tmp/egotactile-pressure-adaptation`。代码为 `scripts/run_stage3_dynamic_support.py` 和 `scripts/run_stage3_model_pilot.py`；逐物体结果为 `results/stage3_dynamic_support*.json` 与 `results/stage3_model_pilot_*.json`。模型测试 `python -m unittest discover -s experiments -p test_stage3_model_pilot.py -v` 已通过 3 项；动态样本组织测试已通过 4 项。全套仓库测试中的旧下载审计依赖 Hugging Face 网络，在此容器无法连通，因此未把全套测试记为通过。
+AutoDL 目录：`/root/autodl-tmp/egotactile-pressure-adaptation`。代码为 `scripts/run_stage3_dynamic_support.py` 和 `scripts/run_stage3_model_pilot.py`；逐物体结果为 `results/stage3_dynamic_support*.json` 与 `results/stage3_model_pilot_*.json`。模型测试 `python -m unittest discover -s experiments -p test_stage3_model_pilot.py -v` 已通过 3 项；动态样本组织测试已通过 4 项。全套仓库测试中的旧下载审计依赖 Hugging Face 网络，在此容器无法连通，因此未把全套测试记为通过。容器最初克隆的 Git HEAD 为 `d67d7a6`；后续 Stage 3 源文件从本实验分支的 raw 内容同步，直接用于上述运行。容器到 `github.com` 的 `git fetch` 在 20 秒内超时，所以当前容器工作树仍是混合状态；权威代码、协议和数值摘要以本 PR 分支为准，后续拉取恢复时应先保留容器内的完整结果文件。
