@@ -22,3 +22,7 @@ Both neural methods use the same two-hidden-layer, width-32 ReLU residual MLP, z
 
 The primary paired comparison is MLP fine-tuned MAE minus Reptile adapted MAE (positive favors Reptile), by object. Also report whether fine tuning helps the supervised MLP and whether adapted Reptile beats the actor-history and global-transition baselines. A single seed is a functional pilot; any promising result requires repeat seeds and a separate object selection/evaluation design before a research claim.
 
+## Post-run fairness sensitivity
+
+The first functional run revealed that batch size 32 gave the supervised MLP substantially more training-example exposures than Reptile despite equal gradient-step counts. This was identified after the first model outcomes, so the following sensitivity is explicitly post hoc: rerun the same architecture and steps with supervised batch size 3, approximately matching example exposures, and repeat training seeds while fixing the object-fold and Support-subset seed at `20261127`. Keep the original batch-32 run in the record. The sensitivity cannot turn an exploratory result into confirmation; it tests whether the comparison depends on the exposure imbalance.
+
