@@ -1,6 +1,6 @@
 # Stage 5: MAML feasibility on held-out-object pressure trajectories
 
-**Status:** exploratory. The same 63 EgoTactile-OXT objects had already informed the Stage 3/4 target and model choices. This result is a reason to run an independent confirmation, not a final generalization claim.
+**Status: superseded by the longer-trained MLP comparison.** The 5-shot exact MAML advantage below applies to the original 1,500-step MLP only. A 5,500-step MLP with approximately matched training-record exposures reaches MAE **0.6247**, beating exact MAML's **0.6407**. See `docs/stage5_budget_matched_mlp_results_20261127.md` and `results/stage5_mlp_budget5500_summary.json`. The same 63 EgoTactile-OXT objects had already informed the Stage 3/4 target and model choices; none of these comparisons is confirmatory.
 
 ## Experiment
 
@@ -31,9 +31,9 @@ FOMAML gains 0.02751 from its own adaptation at 5 shots (`[0.01336, 0.04239]`), 
 - The evidence supports a **5-shot adaptation advantage for continuous regional pressure-change prediction on this inspected dataset**. It does not show tactile sensor-relation or graph-edge prediction, and it does not demonstrate robot online adaptation. The data are offline human glove pressure, coarsened to six regions and 0.5-second bins.
 - The current AutoDL repository contains the Stage 1 summary report, not the raw 137-sensor pressure streams. The report's time bins contain regional means, total mean, and active-sensor counts. They cannot recover within-bin temporal order or label sensor-to-sensor coordination edges.
 
-## Next decision
+## Revised next decision
 
-Freeze this exact MAML configuration and test it once on an independent object set or compatible new dataset, with object-level grouping preserved. If the research claim is specifically about *协同关系*, first obtain raw sensor streams, define an observable future edge target and negative controls, test its reproducibility across participants for each object, and only then train a graph meta learner. Avoid deriving both graph edges and Query labels from the same pressure window.
+Treat the longer-trained MLP result as the stronger current baseline. Do not claim a MAML superiority result from this Stage 5 pilot. Freeze the current comparisons and investigate a well-defined new tactile task and independent object set. If the research claim is specifically about *协同关系*, first obtain raw sensor streams, define an observable future edge target and negative controls, test its reproducibility across participants for each object, and only then train a graph meta learner. Avoid deriving both graph edges and Query labels from the same pressure window.
 
 Numeric summaries: `results/stage5_fomaml_summary.json` and `results/stage5_exact_maml_summary.json`. Full per-object/per-seed outputs and logs remain on AutoDL under `results/stage5_*`. Code: `scripts/run_stage5_fomaml_pilot.py` and `scripts/run_stage5_exact_maml_check.py`.
 
