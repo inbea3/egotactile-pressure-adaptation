@@ -29,6 +29,8 @@ class Stage4SignalAuditTests(unittest.TestCase):
         targets, reason = episode_targets(episode, "two_sensors_gt_5N_3samples")
         self.assertIsNone(reason)
         self.assertEqual(targets["share_change"].shape, (4, 6))
+        np.testing.assert_allclose(targets["early_log_region"][:, 0],
+                                   np.log1p([10., 20.]))
         np.testing.assert_allclose(targets["share_change"], 0.)
         np.testing.assert_allclose(
             targets["log_total_change"][:, 0],
