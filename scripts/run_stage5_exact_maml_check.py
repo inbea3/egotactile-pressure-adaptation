@@ -65,6 +65,12 @@ def run(source, seed=20261127, iterations=1500, fold_index=0,
     maml, training_loss = maml_train(data, train_names, model_seed, iterations)
     rows = evaluate_fold(data, train_names, test_names, mlp, maml,
                          3, 0.05, 0.05, subsets_per_query)
+    for values in rows.values():
+        for value in values:
+            value["metrics"]["maml_pretrained"] = value["metrics"].pop(
+                "reptile_pretrained")
+            value["metrics"]["maml_finetuned"] = value["metrics"].pop(
+                "reptile_finetuned")
     output = {"stage": "Stage 5 exact MAML one-fold feasibility check",
               "seed": seed, "fold_index": fold_index,
               "test_objects": test_names, "meta_iterations": iterations,
@@ -75,8 +81,8 @@ def run(source, seed=20261127, iterations=1500, fold_index=0,
         output[shot] = {
             "mlp_pretrained": float(np.mean([v["metrics"]["mlp_pretrained"] for v in values])),
             "mlp_finetuned": float(np.mean([v["metrics"]["mlp_finetuned"] for v in values])),
-            "maml_pretrained": float(np.mean([v["metrics"]["reptile_pretrained"] for v in values])),
-            "maml_finetuned": float(np.mean([v["metrics"]["reptile_finetuned"] for v in values])),
+            "maml_pretrained": float(np.mean([v["metrics"]["maml_pretrained"] for v in values])),
+            "maml_finetuned": float(np.mean([v["metrics"]["maml_finetuned"] for v in values])),
         }
     return output
 
