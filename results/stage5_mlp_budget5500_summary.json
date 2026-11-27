@@ -1,0 +1,139 @@
+{
+  "stage": "Stage 5 exploratory record-exposure-matched MLP check",
+  "mlp_steps": 5500,
+  "mlp_batch_size": 3,
+  "seeds": [
+    20261127,
+    20261128,
+    20261129
+  ],
+  "shots": {
+    "1": {
+      "seed_means": {
+        "20261127": {
+          "mlp5500_pretrained": 0.6330064397546334,
+          "mlp5500_finetuned": 0.6619413357888758,
+          "maml_finetuned": 0.6712081724778293
+        },
+        "20261128": {
+          "mlp5500_pretrained": 0.6396027172350698,
+          "mlp5500_finetuned": 0.6620690756332271,
+          "maml_finetuned": 0.6811122953108869
+        },
+        "20261129": {
+          "mlp5500_pretrained": 0.637493501453369,
+          "mlp5500_finetuned": 0.6601825733042324,
+          "maml_finetuned": 0.6777701094881535
+        }
+      },
+      "mean_seed_object_metrics": {
+        "mlp5500_pretrained": 0.6367008861476906,
+        "mlp5500_finetuned": 0.661397661575445,
+        "maml_finetuned": 0.67669685909229
+      },
+      "paired_object_bootstrap_after_averaging_seeds": {
+        "mlp5500_pretrained_minus_maml_finetuned": {
+          "mean": -0.03999597294459928,
+          "ci95": [
+            -0.05359937372691424,
+            -0.023175751011888162
+          ],
+          "objects_improved": 12
+        },
+        "mlp5500_finetuned_minus_maml_finetuned": {
+          "mean": -0.015299197516845053,
+          "ci95": [
+            -0.02195446956703783,
+            -0.00900520940145593
+          ],
+          "objects_improved": 17
+        }
+      }
+    },
+    "2": {
+      "seed_means": {
+        "20261127": {
+          "mlp5500_pretrained": 0.6330064397546334,
+          "mlp5500_finetuned": 0.6469552603753046,
+          "maml_finetuned": 0.6553926613876228
+        },
+        "20261128": {
+          "mlp5500_pretrained": 0.6396027172350698,
+          "mlp5500_finetuned": 0.6456011684921278,
+          "maml_finetuned": 0.6650510689646153
+        },
+        "20261129": {
+          "mlp5500_pretrained": 0.637493501453369,
+          "mlp5500_finetuned": 0.6470346392610207,
+          "maml_finetuned": 0.6606829726732054
+        }
+      },
+      "mean_seed_object_metrics": {
+        "mlp5500_pretrained": 0.6367008861476906,
+        "mlp5500_finetuned": 0.6465303560428175,
+        "maml_finetuned": 0.6603755676751478
+      },
+      "paired_object_bootstrap_after_averaging_seeds": {
+        "mlp5500_pretrained_minus_maml_finetuned": {
+          "mean": -0.0236746815274571,
+          "ci95": [
+            -0.037646684174312696,
+            -0.006122998504057517
+          ],
+          "objects_improved": 15
+        },
+        "mlp5500_finetuned_minus_maml_finetuned": {
+          "mean": -0.013845211632330275,
+          "ci95": [
+            -0.020592382544874215,
+            -0.007232203064431907
+          ],
+          "objects_improved": 17
+        }
+      }
+    },
+    "5": {
+      "seed_means": {
+        "20261127": {
+          "mlp5500_pretrained": 0.6330064397546334,
+          "mlp5500_finetuned": 0.6257340971124826,
+          "maml_finetuned": 0.6357497658960322
+        },
+        "20261128": {
+          "mlp5500_pretrained": 0.6396027172350698,
+          "mlp5500_finetuned": 0.6236689899723741,
+          "maml_finetuned": 0.6443434911169743
+        },
+        "20261129": {
+          "mlp5500_pretrained": 0.637493501453369,
+          "mlp5500_finetuned": 0.6246861653649539,
+          "maml_finetuned": 0.6418508012535991
+        }
+      },
+      "mean_seed_object_metrics": {
+        "mlp5500_pretrained": 0.6367008861476906,
+        "mlp5500_finetuned": 0.6246964174832702,
+        "maml_finetuned": 0.6406480194222018
+      },
+      "paired_object_bootstrap_after_averaging_seeds": {
+        "mlp5500_pretrained_minus_maml_finetuned": {
+          "mean": -0.003947133274511114,
+          "ci95": [
+            -0.018506721337598373,
+            0.013921642931692289
+          ],
+          "objects_improved": 25
+        },
+        "mlp5500_finetuned_minus_maml_finetuned": {
+          "mean": -0.01595160193893169,
+          "ci95": [
+            -0.022804717253703956,
+            -0.009065490068850926
+          ],
+          "objects_improved": 15
+        }
+      }
+    }
+  },
+  "status": "exploratory; 63 objects previously inspected; approximate exposure  matching only"
+}
