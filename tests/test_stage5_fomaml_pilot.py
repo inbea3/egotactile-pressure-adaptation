@@ -4,12 +4,17 @@ from pathlib import Path
 import unittest
 
 import numpy as np
-import torch
+try:
+    import torch
+except ModuleNotFoundError:
+    torch = None
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from run_stage5_fomaml_pilot import choose_task, fomaml_train, make_model  # noqa: E402
+if torch is not None:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from run_stage5_fomaml_pilot import choose_task, fomaml_train, make_model  # noqa: E402
 
 
+@unittest.skipIf(torch is None, "requires PyTorch; run on AutoDL")
 class Stage5FomamlPilotTests(unittest.TestCase):
     def setUp(self):
         self.data = {
