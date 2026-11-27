@@ -55,6 +55,7 @@ def episode_targets(episode: dict, onset_rule: str) -> tuple[dict | None, str | 
         "share_change": share["delta"][:, :6],
         "log_region_change": log_region[2:] - log_region[1][None, :],
         "log_total_change": log_total[2:] - log_total[1][None, :],
+        "early_log_region": log_region[:2],
     }, None
 
 
@@ -71,7 +72,7 @@ def extract_targets(stage1_report: dict, onset_rule: str) -> tuple[dict, dict]:
             objects[obj["object_name"]] = {
                 actor: {
                     target: np.mean([record[target] for record in records], axis=0)
-                    for target in TARGETS
+                    for target in (*TARGETS, "early_log_region")
                 }
                 for actor, records in participants.items()
             }
