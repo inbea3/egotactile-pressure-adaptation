@@ -43,10 +43,12 @@ class Stage4SignalAuditTests(unittest.TestCase):
                 data[f"obj{object_index}"][f"actor{actor_index}"] = {
                     "share_change": np.full((4, 6), object_index * 2. + actor_index * 0.5),
                 }
-        result = variance_decomposition(data, "share_change")
+        result = variance_decomposition(data, "share_change", permutation_reps=100)
         self.assertAlmostEqual(result["additive_r2"], 1., places=10)
         self.assertGreater(result["incremental_object_after_participant_fraction"], 0.)
         self.assertGreater(result["incremental_participant_after_object_fraction"], 0.)
+        self.assertGreater(result["incremental_object_after_participant_fraction"],
+                           result["object_increment_permutation_null"]["quantile_95"])
 
     def test_support_query_separation_and_object_signal(self):
         actors = [f"actor{i}" for i in range(6)]
