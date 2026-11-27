@@ -1,0 +1,984 @@
+{
+  "stage": "Stage 4 exploratory object signal audit",
+  "dataset_revision": "5b05f19e613758e76c330671f4c9f3c06af8af44",
+  "seed": 20261127,
+  "support_subset_seed": 20261127,
+  "bootstrap_repetitions": 5000,
+  "permutation_repetitions": 500,
+  "subsets_per_query": 5,
+  "onset_rules": {
+    "two_sensors_gt_5N_3samples": {
+      "eligible_objects": 63,
+      "eligible_recordings": 692,
+      "targets": {
+        "share_change": {
+          "variance_decomposition": {
+            "cells": 692,
+            "objects": 63,
+            "participants": 11,
+            "dimensions": 24,
+            "object_only_r2": 0.14021733106275713,
+            "participant_only_r2": 0.19212331594319065,
+            "additive_r2": 0.33254763793383313,
+            "incremental_object_after_participant_fraction": 0.14042432199064256,
+            "incremental_participant_after_object_fraction": 0.19233030687107602,
+            "unexplained_fraction": 0.6674523620661669,
+            "object_increment_permutation_null": {
+              "repetitions": 500,
+              "mean": 0.0733582109113624,
+              "quantile_95": 0.08173979906552249,
+              "observed_minus_null_mean": 0.06706611107928016,
+              "empirical_upper_tail_p": 0.001996007984031936
+            }
+          },
+          "shot_summaries": {
+            "1": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.06125843126446243,
+                  "ci95": [
+                    0.05910185141384789,
+                    0.063689238909736
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.06221447769534613,
+                  "ci95": [
+                    0.06017714886228759,
+                    0.06432840079546714
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.08523460341666696,
+                  "ci95": [
+                    0.08234715361738529,
+                    0.08827428650120839
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": -0.0009560464308837035,
+                  "ci95": [
+                    -0.0014369555742032069,
+                    -0.00044403905547396637
+                  ],
+                  "objects_improved": 13
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.023976172152204527,
+                  "ci95": [
+                    -0.025458262383710413,
+                    -0.022434287960542483
+                  ],
+                  "objects_improved": 0
+                }
+              }
+            },
+            "2": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.06125843126446243,
+                  "ci95": [
+                    0.05911766875738149,
+                    0.06357983602413668
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.06109916119764997,
+                  "ci95": [
+                    0.059037461386532895,
+                    0.06326023300800217
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.07366264518019147,
+                  "ci95": [
+                    0.07127890415891709,
+                    0.07624699494598917
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.00015927006681245475,
+                  "ci95": [
+                    -0.0002936764587913392,
+                    0.000674616450649577
+                  ],
+                  "objects_improved": 27
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.012404213915729044,
+                  "ci95": [
+                    -0.013612432119325895,
+                    -0.011174548404949558
+                  ],
+                  "objects_improved": 2
+                }
+              }
+            },
+            "5": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.06125843126446243,
+                  "ci95": [
+                    0.059146144479690264,
+                    0.06351917691777466
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.06039545294149356,
+                  "ci95": [
+                    0.058324546725376784,
+                    0.06254022120435021
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.06528479159678094,
+                  "ci95": [
+                    0.063184431616968,
+                    0.06745931833134176
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.0008629783229688723,
+                  "ci95": [
+                    0.0004287071582075192,
+                    0.0013380196136078659
+                  ],
+                  "objects_improved": 40
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.004026360332318504,
+                  "ci95": [
+                    -0.0051485454740171415,
+                    -0.002824660326946357
+                  ],
+                  "objects_improved": 10
+                }
+              }
+            }
+          },
+          "five_shot_gain_robustness_posthoc": {
+            "median": 0.0004746339696304752,
+            "trimmed_mean_10_percent_each_tail": 0.0006026882345121273,
+            "mean_without_top_five_gains": 0.0004525139566164998
+          }
+        },
+        "log_region_change": {
+          "variance_decomposition": {
+            "cells": 692,
+            "objects": 63,
+            "participants": 11,
+            "dimensions": 24,
+            "object_only_r2": 0.14456729367530186,
+            "participant_only_r2": 0.18810143930277357,
+            "additive_r2": 0.333012911626425,
+            "incremental_object_after_participant_fraction": 0.14491147232365137,
+            "incremental_participant_after_object_fraction": 0.18844561795112308,
+            "unexplained_fraction": 0.666987088373575,
+            "object_increment_permutation_null": {
+              "repetitions": 500,
+              "mean": 0.07370022798132843,
+              "quantile_95": 0.08304653167288581,
+              "observed_minus_null_mean": 0.07121124434232294,
+              "empirical_upper_tail_p": 0.001996007984031936
+            }
+          },
+          "shot_summaries": {
+            "1": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.7379036203074905,
+                  "ci95": [
+                    0.707799201013958,
+                    0.7715596068348962
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.7474358170523069,
+                  "ci95": [
+                    0.7191189946315204,
+                    0.7776693451177227
+                  ]
+                },
+                "full_support": {
+                  "mean": 1.0186840998393343,
+                  "ci95": [
+                    0.9798841168561911,
+                    1.0593455713924478
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": -0.009532196744816432,
+                  "ci95": [
+                    -0.016263887675702044,
+                    -0.0018763083702412818
+                  ],
+                  "objects_improved": 15
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.2807804795318439,
+                  "ci95": [
+                    -0.3029934665411988,
+                    -0.25766945070669917
+                  ],
+                  "objects_improved": 1
+                }
+              }
+            },
+            "2": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.7379036203074905,
+                  "ci95": [
+                    0.7068338734768068,
+                    0.7697499432937487
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.7325683950510116,
+                  "ci95": [
+                    0.7042330728648317,
+                    0.7618933176710342
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.8791488416721496,
+                  "ci95": [
+                    0.8475875733011743,
+                    0.9116330174455167
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.005335225256479014,
+                  "ci95": [
+                    -0.0011114260872515478,
+                    0.012630184747705792
+                  ],
+                  "objects_improved": 33
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.14124522136465895,
+                  "ci95": [
+                    -0.15860501542627317,
+                    -0.12184632836807556
+                  ],
+                  "objects_improved": 2
+                }
+              }
+            },
+            "5": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.7379036203074905,
+                  "ci95": [
+                    0.7070401259260617,
+                    0.7697995061716082
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.7250273667317395,
+                  "ci95": [
+                    0.6963581782344069,
+                    0.7538170831293303
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.7771015734868825,
+                  "ci95": [
+                    0.7482352119709909,
+                    0.8051668256158029
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.012876253575750972,
+                  "ci95": [
+                    0.006729140074185276,
+                    0.020054176715435447
+                  ],
+                  "objects_improved": 43
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.039197953179392,
+                  "ci95": [
+                    -0.05605543441537972,
+                    -0.018643834781543033
+                  ],
+                  "objects_improved": 12
+                }
+              }
+            }
+          },
+          "five_shot_gain_robustness_posthoc": {
+            "median": 0.008788415047555787,
+            "trimmed_mean_10_percent_each_tail": 0.008671531576230898,
+            "mean_without_top_five_gains": 0.006856681447117135
+          }
+        },
+        "log_total_change": {
+          "variance_decomposition": {
+            "cells": 692,
+            "objects": 63,
+            "participants": 11,
+            "dimensions": 4,
+            "object_only_r2": 0.16078350662571428,
+            "participant_only_r2": 0.20575209552949825,
+            "additive_r2": 0.36671155669172606,
+            "incremental_object_after_participant_fraction": 0.1609594611622278,
+            "incremental_participant_after_object_fraction": 0.2059280500660118,
+            "unexplained_fraction": 0.6332884433082739,
+            "object_increment_permutation_null": {
+              "repetitions": 500,
+              "mean": 0.07192822995609408,
+              "quantile_95": 0.08838770869919924,
+              "observed_minus_null_mean": 0.08903123120613374,
+              "empirical_upper_tail_p": 0.001996007984031936
+            }
+          },
+          "shot_summaries": {
+            "1": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.43549734613543534,
+                  "ci95": [
+                    0.4051706988467619,
+                    0.46850918791861607
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.43466997815710057,
+                  "ci95": [
+                    0.40641500711093326,
+                    0.46462564687358027
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.582858261932981,
+                  "ci95": [
+                    0.5427266640718644,
+                    0.6250299299209576
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.0008273679783348764,
+                  "ci95": [
+                    -0.008124051087045874,
+                    0.011090476444253483
+                  ],
+                  "objects_improved": 23
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.1473609157975456,
+                  "ci95": [
+                    -0.17374138886612434,
+                    -0.11842538690308493
+                  ],
+                  "objects_improved": 4
+                }
+              }
+            },
+            "2": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.43549734613543534,
+                  "ci95": [
+                    0.4050903387939135,
+                    0.4669034163231539
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.4266129462506003,
+                  "ci95": [
+                    0.39757810784238024,
+                    0.45664058734633145
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.504755169158862,
+                  "ci95": [
+                    0.47191255612818833,
+                    0.5407306053754964
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.008884399884835161,
+                  "ci95": [
+                    0.000723672801057628,
+                    0.018541470079322553
+                  ],
+                  "objects_improved": 34
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.06925782302342658,
+                  "ci95": [
+                    -0.09149582852142259,
+                    -0.04511483374816617
+                  ],
+                  "objects_improved": 9
+                }
+              }
+            },
+            "5": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.43549734613543534,
+                  "ci95": [
+                    0.40556307913814726,
+                    0.46691650555710223
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.4218698290682547,
+                  "ci95": [
+                    0.393868520791168,
+                    0.4507513625402709
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.44405619851132644,
+                  "ci95": [
+                    0.41474205929234814,
+                    0.475430894277625
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.01362751706718069,
+                  "ci95": [
+                    0.005910773489980032,
+                    0.02279395439903133
+                  ],
+                  "objects_improved": 35
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.008558852375891008,
+                  "ci95": [
+                    -0.029718142239581448,
+                    0.01594136791490449
+                  ],
+                  "objects_improved": 22
+                }
+              }
+            }
+          },
+          "five_shot_gain_robustness_posthoc": {
+            "median": 0.006323053218051378,
+            "trimmed_mean_10_percent_each_tail": 0.007834782577605824,
+            "mean_without_top_five_gains": 0.006076050265216739
+          }
+        }
+      }
+    },
+    "any_sensor_gt_5N_3samples": {
+      "eligible_objects": 63,
+      "eligible_recordings": 692,
+      "targets": {
+        "share_change": {
+          "variance_decomposition": {
+            "cells": 692,
+            "objects": 63,
+            "participants": 11,
+            "dimensions": 24,
+            "object_only_r2": 0.13557241374330253,
+            "participant_only_r2": 0.20741137523743136,
+            "additive_r2": 0.3429066385309444,
+            "incremental_object_after_participant_fraction": 0.13549526329351308,
+            "incremental_participant_after_object_fraction": 0.20733422478764185,
+            "unexplained_fraction": 0.6570933614690556,
+            "object_increment_permutation_null": {
+              "repetitions": 500,
+              "mean": 0.07159574054398618,
+              "quantile_95": 0.07925713031586988,
+              "observed_minus_null_mean": 0.0638995227495269,
+              "empirical_upper_tail_p": 0.001996007984031936
+            }
+          },
+          "shot_summaries": {
+            "1": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.061494931634561455,
+                  "ci95": [
+                    0.059221656744597215,
+                    0.06394899345858095
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.06255484740074159,
+                  "ci95": [
+                    0.06038192979602192,
+                    0.06476067676624014
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.08592806196222712,
+                  "ci95": [
+                    0.08281762201022379,
+                    0.08916947003534377
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": -0.0010599157661801252,
+                  "ci95": [
+                    -0.0015242293562129931,
+                    -0.0005389144236311987
+                  ],
+                  "objects_improved": 11
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.024433130327665635,
+                  "ci95": [
+                    -0.02608867412012528,
+                    -0.02281145215350457
+                  ],
+                  "objects_improved": 0
+                }
+              }
+            },
+            "2": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.061494931634561455,
+                  "ci95": [
+                    0.05928445783757369,
+                    0.06384978054553411
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.061437082461311465,
+                  "ci95": [
+                    0.05930948015891662,
+                    0.06365504897017216
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.07436245710435598,
+                  "ci95": [
+                    0.07170479502800713,
+                    0.07714405985049613
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.00005784917324997756,
+                  "ci95": [
+                    -0.0003576935648102621,
+                    0.0005442439356259228
+                  ],
+                  "objects_improved": 27
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.012867525469794505,
+                  "ci95": [
+                    -0.014100611648580239,
+                    -0.011618679718619507
+                  ],
+                  "objects_improved": 0
+                }
+              }
+            },
+            "5": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.061494931634561455,
+                  "ci95": [
+                    0.05928992852633757,
+                    0.06377689238716987
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.06067072338913365,
+                  "ci95": [
+                    0.058512799284604324,
+                    0.0629339763052633
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.06574067123667932,
+                  "ci95": [
+                    0.06346899829081966,
+                    0.06816620454617324
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.0008242082454278009,
+                  "ci95": [
+                    0.00040164647748682744,
+                    0.0013023428290566904
+                  ],
+                  "objects_improved": 38
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.0042457396021178505,
+                  "ci95": [
+                    -0.005368565913966386,
+                    -0.0030773137196091925
+                  ],
+                  "objects_improved": 8
+                }
+              }
+            }
+          },
+          "five_shot_gain_robustness_posthoc": {
+            "median": 0.000483308931215308,
+            "trimmed_mean_10_percent_each_tail": 0.0005939248736438154,
+            "mean_without_top_five_gains": 0.00044759337593963785
+          }
+        },
+        "log_region_change": {
+          "variance_decomposition": {
+            "cells": 692,
+            "objects": 63,
+            "participants": 11,
+            "dimensions": 24,
+            "object_only_r2": 0.1404831087969204,
+            "participant_only_r2": 0.2140439595451794,
+            "additive_r2": 0.3544496762271587,
+            "incremental_object_after_participant_fraction": 0.14040571668197935,
+            "incremental_participant_after_object_fraction": 0.21396656743023834,
+            "unexplained_fraction": 0.6455503237728413,
+            "object_increment_permutation_null": {
+              "repetitions": 500,
+              "mean": 0.0711318516756429,
+              "quantile_95": 0.07970300978641204,
+              "observed_minus_null_mean": 0.06927386500633645,
+              "empirical_upper_tail_p": 0.001996007984031936
+            }
+          },
+          "shot_summaries": {
+            "1": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.721742888086279,
+                  "ci95": [
+                    0.6936682009128665,
+                    0.7525215043748175
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.7310117550351976,
+                  "ci95": [
+                    0.7055891541539729,
+                    0.7576870155591816
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.9928001790801281,
+                  "ci95": [
+                    0.9585639992887846,
+                    1.0282985101349058
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": -0.009268866948918509,
+                  "ci95": [
+                    -0.016046936705595982,
+                    -0.0011848475492360002
+                  ],
+                  "objects_improved": 15
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.27105729099384923,
+                  "ci95": [
+                    -0.29277114654776554,
+                    -0.24754228302937803
+                  ],
+                  "objects_improved": 1
+                }
+              }
+            },
+            "2": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.721742888086279,
+                  "ci95": [
+                    0.692698119472946,
+                    0.751238076393481
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.7167502389568392,
+                  "ci95": [
+                    0.6908300519317965,
+                    0.7432370888470232
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.8575892985696637,
+                  "ci95": [
+                    0.828883873411035,
+                    0.8886001064867999
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.004992649129439708,
+                  "ci95": [
+                    -0.0011116905147246835,
+                    0.01211135439895809
+                  ],
+                  "objects_improved": 32
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.1358464104833846,
+                  "ci95": [
+                    -0.15370399169888185,
+                    -0.11520472008077084
+                  ],
+                  "objects_improved": 3
+                }
+              }
+            },
+            "5": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.721742888086279,
+                  "ci95": [
+                    0.692970946527214,
+                    0.7512558573623955
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.7092721186573162,
+                  "ci95": [
+                    0.6832910017409617,
+                    0.7352632813753929
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.7589138551268971,
+                  "ci95": [
+                    0.7333103304209424,
+                    0.7855042804127776
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.012470769428962806,
+                  "ci95": [
+                    0.006193727371638304,
+                    0.019529589163022935
+                  ],
+                  "objects_improved": 43
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.037170967040618244,
+                  "ci95": [
+                    -0.05447661890808755,
+                    -0.016306330910719403
+                  ],
+                  "objects_improved": 12
+                }
+              }
+            }
+          },
+          "five_shot_gain_robustness_posthoc": {
+            "median": 0.005840039833375443,
+            "trimmed_mean_10_percent_each_tail": 0.007680641879448322,
+            "mean_without_top_five_gains": 0.006017114421043828
+          }
+        },
+        "log_total_change": {
+          "variance_decomposition": {
+            "cells": 692,
+            "objects": 63,
+            "participants": 11,
+            "dimensions": 4,
+            "object_only_r2": 0.15635866864077275,
+            "participant_only_r2": 0.27187714851307243,
+            "additive_r2": 0.42724688407223654,
+            "incremental_object_after_participant_fraction": 0.1553697355591641,
+            "incremental_participant_after_object_fraction": 0.27088821543146385,
+            "unexplained_fraction": 0.5727531159277635,
+            "object_increment_permutation_null": {
+              "repetitions": 500,
+              "mean": 0.06555315479414102,
+              "quantile_95": 0.0804946523632331,
+              "observed_minus_null_mean": 0.0898165807650231,
+              "empirical_upper_tail_p": 0.001996007984031936
+            }
+          },
+          "shot_summaries": {
+            "1": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.4137770854200653,
+                  "ci95": [
+                    0.3872087911847405,
+                    0.4417477997875283
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.4104385576285042,
+                  "ci95": [
+                    0.38733155956861254,
+                    0.4348851262974266
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.5430683703413769,
+                  "ci95": [
+                    0.5112889802455929,
+                    0.5752853764232769
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.003338527791561081,
+                  "ci95": [
+                    -0.0048327015675252395,
+                    0.013422496475027124
+                  ],
+                  "objects_improved": 23
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.12929128492131176,
+                  "ci95": [
+                    -0.15398863721907563,
+                    -0.10183114748012141
+                  ],
+                  "objects_improved": 6
+                }
+              }
+            },
+            "2": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.4137770854200653,
+                  "ci95": [
+                    0.3872931216018746,
+                    0.4417720758750287
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.403975138926988,
+                  "ci95": [
+                    0.380122562786946,
+                    0.42817859079709
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.4711883527527178,
+                  "ci95": [
+                    0.44324636129361683,
+                    0.5004807669546433
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.009801946493077165,
+                  "ci95": [
+                    0.00183600908851197,
+                    0.018834577733806077
+                  ],
+                  "objects_improved": 35
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.05741126733265258,
+                  "ci95": [
+                    -0.07966514577730656,
+                    -0.03055657362633846
+                  ],
+                  "objects_improved": 10
+                }
+              }
+            },
+            "5": {
+              "object_count": 63,
+              "methods": {
+                "actor_history": {
+                  "mean": 0.4137770854200653,
+                  "ci95": [
+                    0.38683349896928493,
+                    0.4414917219679465
+                  ]
+                },
+                "quarter_support": {
+                  "mean": 0.40018174318171246,
+                  "ci95": [
+                    0.37711532489472044,
+                    0.4245235368807509
+                  ]
+                },
+                "full_support": {
+                  "mean": 0.4164363304012834,
+                  "ci95": [
+                    0.39252961656993557,
+                    0.4421676668084276
+                  ]
+                }
+              },
+              "paired_differences_positive_favors_support": {
+                "actor_history_minus_quarter_support": {
+                  "mean": 0.01359534223835284,
+                  "ci95": [
+                    0.005822956675916283,
+                    0.02228417458510948
+                  ],
+                  "objects_improved": 34
+                },
+                "actor_history_minus_full_support": {
+                  "mean": -0.002659244981218214,
+                  "ci95": [
+                    -0.023924235441627417,
+                    0.02273157315970815
+                  ],
+                  "objects_improved": 20
+                }
+              }
+            }
+          },
+          "five_shot_gain_robustness_posthoc": {
+            "median": 0.003368425360094074,
+            "trimmed_mean_10_percent_each_tail": 0.0076234293815347146,
+            "mean_without_top_five_gains": 0.0061010233880939395
+          }
+        }
+      }
+    }
+  },
+  "full_object_metrics_location": "AutoDL /root/autodl-tmp/egotactile-pressure-adaptation/results/stage4_object_signal_audit.json"
+}

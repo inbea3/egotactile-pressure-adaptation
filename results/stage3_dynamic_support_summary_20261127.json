@@ -1,0 +1,764 @@
+{
+  "source": "AutoDL SSH container /root/autodl-tmp/egotactile-pressure-adaptation",
+  "dataset_revision": "5b05f19e613758e76c330671f4c9f3c06af8af44",
+  "script_commit": "2b50fdd696b4b4f45a1bcf78cd38004cd4133c96",
+  "bootstrap_repetitions": 5000,
+  "seed": 20261127,
+  "status": "exploratory",
+  "summary": {
+    "two_sensors_gt_5N_3samples": {
+      "inventory": {
+        "episodes_inspected": 692,
+        "eligible_recordings": 692,
+        "eligible_objects": 63,
+        "excluded_objects": [],
+        "excluded_recordings_by_reason": {},
+        "participant_counts_by_object": {
+          "7Up-550ml": 11,
+          "Apple": 11,
+          "Banana": 11,
+          "BellPepper": 11,
+          "BodyWash": 11,
+          "CannedLuncheonMeat": 11,
+          "Carrot": 11,
+          "CestbonWater-555ml": 11,
+          "Clip": 11,
+          "CocaCola-330ml": 11,
+          "CocaCola-500ml": 11,
+          "Corn": 11,
+          "Cucumber": 11,
+          "Detergent": 11,
+          "Dumbbell": 11,
+          "ElectricShaver": 11,
+          "ElectricToothbrush": 11,
+          "GantenWater-560ml": 11,
+          "GlassBowl": 11,
+          "KidsBasketball": 11,
+          "LaysChips-Tube-CucumberFlavor": 11,
+          "LaysChips-Tube-OriginalFlavor": 11,
+          "ModelCar": 11,
+          "MonsterEnergyDrink": 11,
+          "Mug": 11,
+          "NarrowTape": 11,
+          "NongfuSpringWater-550ml-Green": 11,
+          "NongfuSpringWater-550ml-Red": 11,
+          "Orange": 11,
+          "OreoCookies": 11,
+          "PaintBrush": 11,
+          "Pear": 11,
+          "Pepsi-330ml": 11,
+          "Pepsi-900ml": 11,
+          "Perfume": 11,
+          "Pot": 11,
+          "PowerBank-20000mAh": 11,
+          "PureMilk-1000ml": 11,
+          "PureMilk-200ml": 11,
+          "PureMilk-250ml": 11,
+          "RemoteControl": 11,
+          "RiceBrick": 11,
+          "RubiksCube": 11,
+          "SamyangSpicyChickenCupNoodles": 11,
+          "SanlinCoconutWater-330ml": 11,
+          "Screwdriver": 11,
+          "ShinRamyunCupNoodles": 11,
+          "ShoeBrush": 11,
+          "Snickers": 11,
+          "Spaghetti": 11,
+          "Sponge": 10,
+          "SprayBottle": 11,
+          "Sprite-500ml": 11,
+          "TapeMeasure": 11,
+          "TennisBall": 11,
+          "Tomato": 11,
+          "Toothpaste": 11,
+          "Towel": 11,
+          "Umbrella": 11,
+          "WatsonsSodaWater-330ml-Black": 11,
+          "WatsonsSodaWater-330ml-Red": 11,
+          "WideTape": 11,
+          "WoodenStick": 11
+        }
+      },
+      "residual": {
+        "object_template_mae": {
+          "mean": 0.060570918864706516,
+          "ci95": [
+            0.05885669524599789,
+            0.06233992771237795
+          ]
+        },
+        "blocked_global_template_mae": {
+          "mean": 0.059958057962834495,
+          "ci95": [
+            0.05828245166635629,
+            0.06167281918337103
+          ]
+        },
+        "blocked_global_minus_object_template": {
+          "mean": -0.0006128609018720177,
+          "ci95": [
+            -0.0013915383463496418,
+            0.0002861084107450126
+          ],
+          "objects_improved": 18
+        },
+        "actor_template_mae": {
+          "mean": 0.05250722679811066,
+          "ci95": [
+            0.050620546453568276,
+            0.054536144361653466
+          ]
+        },
+        "actor_centered_zero_minus_object_template": {
+          "mean": -0.0006650825870190381,
+          "ci95": [
+            -0.001507727943591805,
+            0.00036526196243962276
+          ],
+          "objects_improved": 15,
+          "objects_evaluated": 63
+        }
+      },
+      "shots": {
+        "1": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.06997314011204656,
+              "ci95": [
+                0.06739445897117918,
+                0.07268375661252638
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.05840814207041699,
+              "ci95": [
+                0.05684040674641356,
+                0.06015634063543861
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.05959101196959649,
+              "ci95": [
+                0.058054701412230375,
+                0.06125941082745971
+              ]
+            },
+            "actor_global": {
+              "mean": 0.05207206776370641,
+              "ci95": [
+                0.0501903136871136,
+                0.05408776407003235
+              ]
+            },
+            "support_delta": {
+              "mean": 0.07443216268548015,
+              "ci95": [
+                0.0724989997118208,
+                0.07634158382870065
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.05983239301936136,
+              "ci95": [
+                0.05824691993144158,
+                0.06141435152123049
+              ]
+            },
+            "actor_centered_support": {
+              "mean": 0.06782466591752595,
+              "ci95": [
+                0.06584426464951088,
+                0.0699535094544551
+              ]
+            },
+            "actor_centered_quarter_shrinkage": {
+              "mean": 0.05263289097618015,
+              "ci95": [
+                0.050879064896839396,
+                0.05449926100003417
+              ]
+            }
+          },
+          "paired_differences_positive_favors_adaptation": {
+            "blocked_global_minus_support_delta": {
+              "mean": -0.014841150715883681,
+              "ci95": [
+                -0.01593741951353923,
+                -0.013685222765979277
+              ],
+              "objects_improved": 1
+            },
+            "blocked_global_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.0002413810497648692,
+              "ci95": [
+                -0.0006057566159452506,
+                0.0001603718815411669
+              ],
+              "objects_improved": 22
+            },
+            "actor_global_minus_actor_centered_quarter_shrinkage": {
+              "mean": -0.0005608232124737383,
+              "ci95": [
+                -0.0009487500520526318,
+                -0.00012612676874670847
+              ],
+              "objects_improved": 14
+            }
+          }
+        },
+        "2": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.06997314011204656,
+              "ci95": [
+                0.06737282558514535,
+                0.07264347179078219
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.05840814207041699,
+              "ci95": [
+                0.056821095615915314,
+                0.06013241760917512
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.05959101196959649,
+              "ci95": [
+                0.057924019981666054,
+                0.061274933447702816
+              ]
+            },
+            "actor_global": {
+              "mean": 0.05207206776370641,
+              "ci95": [
+                0.05023435047065384,
+                0.05408336920056505
+              ]
+            },
+            "support_delta": {
+              "mean": 0.06693389831785561,
+              "ci95": [
+                0.06516579389856735,
+                0.06874215273298072
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.05914126334961459,
+              "ci95": [
+                0.05760408004361319,
+                0.06075550172251444
+              ]
+            },
+            "actor_centered_support": {
+              "mean": 0.06042955566027974,
+              "ci95": [
+                0.05860734884411324,
+                0.062468306372882886
+              ]
+            },
+            "actor_centered_quarter_shrinkage": {
+              "mean": 0.05183101133577595,
+              "ci95": [
+                0.050100439709960275,
+                0.05371943308426862
+              ]
+            }
+          },
+          "paired_differences_positive_favors_adaptation": {
+            "blocked_global_minus_support_delta": {
+              "mean": -0.007342886348259118,
+              "ci95": [
+                -0.008290236414623458,
+                -0.00628228440881247
+              ],
+              "objects_improved": 4
+            },
+            "blocked_global_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": 0.0004497486199819028,
+              "ci95": [
+                0.00011576752935542365,
+                0.0008396107192256732
+              ],
+              "objects_improved": 34
+            },
+            "actor_global_minus_actor_centered_quarter_shrinkage": {
+              "mean": 0.00024105642793047167,
+              "ci95": [
+                -0.0001348528146547449,
+                0.0006591904490585377
+              ],
+              "objects_improved": 28
+            }
+          }
+        },
+        "5": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.06997314011204656,
+              "ci95": [
+                0.06735447016111296,
+                0.07262078517728593
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.05840814207041699,
+              "ci95": [
+                0.05680619056032472,
+                0.06015859077405903
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.05959101196959649,
+              "ci95": [
+                0.05796410981399874,
+                0.061352369704422344
+              ]
+            },
+            "actor_global": {
+              "mean": 0.05207206776370641,
+              "ci95": [
+                0.050184038977809445,
+                0.054129126087065535
+              ]
+            },
+            "support_delta": {
+              "mean": 0.061032850175950615,
+              "ci95": [
+                0.05932847248124648,
+                0.06266545538837505
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.05874268733098532,
+              "ci95": [
+                0.05720391054978581,
+                0.06043197990175007
+              ]
+            },
+            "actor_centered_support": {
+              "mean": 0.054452244127314836,
+              "ci95": [
+                0.05272466312137337,
+                0.05620787415321928
+              ]
+            },
+            "actor_centered_quarter_shrinkage": {
+              "mean": 0.05131960691635208,
+              "ci95": [
+                0.04961549163874413,
+                0.05320965890842091
+              ]
+            }
+          },
+          "paired_differences_positive_favors_adaptation": {
+            "blocked_global_minus_support_delta": {
+              "mean": -0.0014418382063541306,
+              "ci95": [
+                -0.00230534138293076,
+                -0.0005334504966580927
+              ],
+              "objects_improved": 14
+            },
+            "blocked_global_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": 0.0008483246386111815,
+              "ci95": [
+                0.0005212297703745188,
+                0.0012300953945957383
+              ],
+              "objects_improved": 45
+            },
+            "actor_global_minus_actor_centered_quarter_shrinkage": {
+              "mean": 0.0007524608473543341,
+              "ci95": [
+                0.00039984744092578443,
+                0.0011550995026258077
+              ],
+              "objects_improved": 41
+            }
+          }
+        }
+      }
+    },
+    "any_sensor_gt_5N_3samples": {
+      "inventory": {
+        "episodes_inspected": 692,
+        "eligible_recordings": 692,
+        "eligible_objects": 63,
+        "excluded_objects": [],
+        "excluded_recordings_by_reason": {},
+        "participant_counts_by_object": {
+          "7Up-550ml": 11,
+          "Apple": 11,
+          "Banana": 11,
+          "BellPepper": 11,
+          "BodyWash": 11,
+          "CannedLuncheonMeat": 11,
+          "Carrot": 11,
+          "CestbonWater-555ml": 11,
+          "Clip": 11,
+          "CocaCola-330ml": 11,
+          "CocaCola-500ml": 11,
+          "Corn": 11,
+          "Cucumber": 11,
+          "Detergent": 11,
+          "Dumbbell": 11,
+          "ElectricShaver": 11,
+          "ElectricToothbrush": 11,
+          "GantenWater-560ml": 11,
+          "GlassBowl": 11,
+          "KidsBasketball": 11,
+          "LaysChips-Tube-CucumberFlavor": 11,
+          "LaysChips-Tube-OriginalFlavor": 11,
+          "ModelCar": 11,
+          "MonsterEnergyDrink": 11,
+          "Mug": 11,
+          "NarrowTape": 11,
+          "NongfuSpringWater-550ml-Green": 11,
+          "NongfuSpringWater-550ml-Red": 11,
+          "Orange": 11,
+          "OreoCookies": 11,
+          "PaintBrush": 11,
+          "Pear": 11,
+          "Pepsi-330ml": 11,
+          "Pepsi-900ml": 11,
+          "Perfume": 11,
+          "Pot": 11,
+          "PowerBank-20000mAh": 11,
+          "PureMilk-1000ml": 11,
+          "PureMilk-200ml": 11,
+          "PureMilk-250ml": 11,
+          "RemoteControl": 11,
+          "RiceBrick": 11,
+          "RubiksCube": 11,
+          "SamyangSpicyChickenCupNoodles": 11,
+          "SanlinCoconutWater-330ml": 11,
+          "Screwdriver": 11,
+          "ShinRamyunCupNoodles": 11,
+          "ShoeBrush": 11,
+          "Snickers": 11,
+          "Spaghetti": 11,
+          "Sponge": 10,
+          "SprayBottle": 11,
+          "Sprite-500ml": 11,
+          "TapeMeasure": 11,
+          "TennisBall": 11,
+          "Tomato": 11,
+          "Toothpaste": 11,
+          "Towel": 11,
+          "Umbrella": 11,
+          "WatsonsSodaWater-330ml-Black": 11,
+          "WatsonsSodaWater-330ml-Red": 11,
+          "WideTape": 11,
+          "WoodenStick": 11
+        }
+      },
+      "residual": {
+        "object_template_mae": {
+          "mean": 0.06167704774844006,
+          "ci95": [
+            0.06002474181550335,
+            0.06340105583636814
+          ]
+        },
+        "blocked_global_template_mae": {
+          "mean": 0.06093852173335492,
+          "ci95": [
+            0.059368354246819195,
+            0.06259049638145855
+          ]
+        },
+        "blocked_global_minus_object_template": {
+          "mean": -0.0007385260150851477,
+          "ci95": [
+            -0.0015336290525795027,
+            0.0001542700041367492
+          ],
+          "objects_improved": 18
+        },
+        "actor_template_mae": {
+          "mean": 0.05270994140105267,
+          "ci95": [
+            0.050773804392696305,
+            0.05471472489191943
+          ]
+        },
+        "actor_centered_zero_minus_object_template": {
+          "mean": -0.0008590238583970376,
+          "ci95": [
+            -0.001702980759669741,
+            0.00012702007401038063
+          ],
+          "objects_improved": 16,
+          "objects_evaluated": 63
+        }
+      },
+      "shots": {
+        "1": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.07154974012700666,
+              "ci95": [
+                0.06917644735570043,
+                0.07407392827921551
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.05928375883533405,
+              "ci95": [
+                0.05771697631287369,
+                0.061014839234516914
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.060602217435582535,
+              "ci95": [
+                0.05907907326248274,
+                0.06218352346611774
+              ]
+            },
+            "actor_global": {
+              "mean": 0.052256731317513155,
+              "ci95": [
+                0.05029032316312874,
+                0.0542974708090178
+              ]
+            },
+            "support_delta": {
+              "mean": 0.07536981813623927,
+              "ci95": [
+                0.07354602515259746,
+                0.0772777430908253
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.06089638065711072,
+              "ci95": [
+                0.0593869815038213,
+                0.06244130864755248
+              ]
+            },
+            "actor_centered_support": {
+              "mean": 0.06818872007805912,
+              "ci95": [
+                0.06609223301238921,
+                0.07041688298209779
+              ]
+            },
+            "actor_centered_quarter_shrinkage": {
+              "mean": 0.052898305882436936,
+              "ci95": [
+                0.05109637568074774,
+                0.05484006818077071
+              ]
+            }
+          },
+          "paired_differences_positive_favors_adaptation": {
+            "blocked_global_minus_support_delta": {
+              "mean": -0.01476760070065676,
+              "ci95": [
+                -0.015799697711515643,
+                -0.01365058037317293
+              ],
+              "objects_improved": 0
+            },
+            "blocked_global_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": -0.00029416322152818133,
+              "ci95": [
+                -0.0006428526513916376,
+                0.00009459105884520367
+              ],
+              "objects_improved": 21
+            },
+            "actor_global_minus_actor_centered_quarter_shrinkage": {
+              "mean": -0.0006415745649237803,
+              "ci95": [
+                -0.0010283482618273624,
+                -0.00020969692853947759
+              ],
+              "objects_improved": 14
+            }
+          }
+        },
+        "2": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.07154974012700666,
+              "ci95": [
+                0.069146431588993,
+                0.07402419536337182
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.05928375883533405,
+              "ci95": [
+                0.057690930437859424,
+                0.06096477857201811
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.060602217435582535,
+              "ci95": [
+                0.0589642105569729,
+                0.06223646720791909
+              ]
+            },
+            "actor_global": {
+              "mean": 0.052256731317513155,
+              "ci95": [
+                0.050391446983931346,
+                0.05431945643360968
+              ]
+            },
+            "support_delta": {
+              "mean": 0.0680487047290577,
+              "ci95": [
+                0.06637094275456737,
+                0.06988487315119121
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.06020773552170085,
+              "ci95": [
+                0.058734386057906963,
+                0.061749575018885935
+              ]
+            },
+            "actor_centered_support": {
+              "mean": 0.06086061915667983,
+              "ci95": [
+                0.05884158774456564,
+                0.06305593872440905
+              ]
+            },
+            "actor_centered_quarter_shrinkage": {
+              "mean": 0.052080816498594244,
+              "ci95": [
+                0.05026412530850646,
+                0.0540786353119307
+              ]
+            }
+          },
+          "paired_differences_positive_favors_adaptation": {
+            "blocked_global_minus_support_delta": {
+              "mean": -0.007446487293475175,
+              "ci95": [
+                -0.008403304761828727,
+                -0.006414435519883752
+              ],
+              "objects_improved": 3
+            },
+            "blocked_global_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": 0.0003944819138816977,
+              "ci95": [
+                0.0000661109430682142,
+                0.0007687314501951122
+              ],
+              "objects_improved": 33
+            },
+            "actor_global_minus_actor_centered_quarter_shrinkage": {
+              "mean": 0.0001759148189189058,
+              "ci95": [
+                -0.00019499273311122166,
+                0.0005879292358359158
+              ],
+              "objects_improved": 29
+            }
+          }
+        },
+        "5": {
+          "object_count": 63,
+          "methods": {
+            "persistence": {
+              "mean": 0.07154974012700666,
+              "ci95": [
+                0.0691285790509601,
+                0.07406663468802774
+              ]
+            },
+            "global_known_subject": {
+              "mean": 0.05928375883533405,
+              "ci95": [
+                0.05771101826123385,
+                0.06097952880565694
+              ]
+            },
+            "global_query_subject_blocked": {
+              "mean": 0.060602217435582535,
+              "ci95": [
+                0.059017479715370524,
+                0.062291461418369845
+              ]
+            },
+            "actor_global": {
+              "mean": 0.052256731317513155,
+              "ci95": [
+                0.05025770539204987,
+                0.05427147126237672
+              ]
+            },
+            "support_delta": {
+              "mean": 0.06216575034696732,
+              "ci95": [
+                0.06052749640693027,
+                0.06379908747809954
+              ]
+            },
+            "fixed_quarter_shrinkage_blocked": {
+              "mean": 0.059797637637446735,
+              "ci95": [
+                0.05832496286108824,
+                0.06138509960789695
+              ]
+            },
+            "actor_centered_support": {
+              "mean": 0.054843688407327805,
+              "ci95": [
+                0.05303954575587462,
+                0.05673867552495752
+              ]
+            },
+            "actor_centered_quarter_shrinkage": {
+              "mean": 0.05155376523966322,
+              "ci95": [
+                0.04976841641977208,
+                0.05355166557964326
+              ]
+            }
+          },
+          "paired_differences_positive_favors_adaptation": {
+            "blocked_global_minus_support_delta": {
+              "mean": -0.0015635329113847898,
+              "ci95": [
+                -0.0024349638245085422,
+                -0.0006533332367918144
+              ],
+              "objects_improved": 15
+            },
+            "blocked_global_minus_fixed_quarter_shrinkage_blocked": {
+              "mean": 0.0008045797981358147,
+              "ci95": [
+                0.0004841270775251265,
+                0.0011775673032174282
+              ],
+              "objects_improved": 43
+            },
+            "actor_global_minus_actor_centered_quarter_shrinkage": {
+              "mean": 0.0007029660778499384,
+              "ci95": [
+                0.00035432194421033096,
+                0.0011038961994238366
+              ],
+              "objects_improved": 40
+            }
+          }
+        }
+      }
+    }
+  }
+}

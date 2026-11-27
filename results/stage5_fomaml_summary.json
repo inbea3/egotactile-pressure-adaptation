@@ -1,0 +1,189 @@
+{
+  "stage": "Stage 5 exploratory FOMAML pilot",
+  "seeds": [
+    20261127,
+    20261128,
+    20261129
+  ],
+  "folds": 5,
+  "shots": {
+    "1": {
+      "object_count": 63,
+      "seed_means": {
+        "20261127": {
+          "mlp_pretrained": 0.6572443704903461,
+          "mlp_finetuned": 0.6850257200311041,
+          "fomaml_pretrained": 0.6811650787562957,
+          "fomaml_finetuned": 0.6793730862432772,
+          "actor_quarter_support": 0.7481173481629908
+        },
+        "20261128": {
+          "mlp_pretrained": 0.6675928273707298,
+          "mlp_finetuned": 0.6882308862111297,
+          "fomaml_pretrained": 0.6841210695193284,
+          "fomaml_finetuned": 0.6806868537320474,
+          "actor_quarter_support": 0.7481173481629908
+        },
+        "20261129": {
+          "mlp_pretrained": 0.6584720003813985,
+          "mlp_finetuned": 0.6866245829076121,
+          "fomaml_pretrained": 0.6723293115961465,
+          "fomaml_finetuned": 0.6783591057747235,
+          "actor_quarter_support": 0.7481173481629908
+        }
+      },
+      "mean_seed_object_metrics": {
+        "mlp_pretrained": 0.6611030660808249,
+        "mlp_finetuned": 0.6866270630499486,
+        "fomaml_pretrained": 0.6792051532905902,
+        "fomaml_finetuned": 0.679473015250016,
+        "actor_quarter_support": 0.748117348162991
+      },
+      "paired_object_bootstrap_after_averaging_seeds": {
+        "fomaml_pretrained_minus_fomaml_finetuned": {
+          "mean": -0.0002678619594257053,
+          "ci95": [
+            -0.012017103056622996,
+            0.012916688555026408
+          ],
+          "objects_improved": 22
+        },
+        "mlp_finetuned_minus_fomaml_finetuned": {
+          "mean": 0.007154047799932675,
+          "ci95": [
+            0.003321910479251913,
+            0.010811173786490325
+          ],
+          "objects_improved": 49
+        },
+        "mlp_pretrained_minus_fomaml_finetuned": {
+          "mean": -0.018369949169191078,
+          "ci95": [
+            -0.02912161106761829,
+            -0.005383827362676891
+          ],
+          "objects_improved": 16
+        }
+      }
+    },
+    "2": {
+      "object_count": 63,
+      "seed_means": {
+        "20261127": {
+          "mlp_pretrained": 0.6572443704903461,
+          "mlp_finetuned": 0.6718770160777999,
+          "fomaml_pretrained": 0.6811650787562957,
+          "fomaml_finetuned": 0.6678494660835811,
+          "actor_quarter_support": 0.7331182982077658
+        },
+        "20261128": {
+          "mlp_pretrained": 0.6675928273707298,
+          "mlp_finetuned": 0.6729996507113354,
+          "fomaml_pretrained": 0.6841210695193284,
+          "fomaml_finetuned": 0.6713147879103126,
+          "actor_quarter_support": 0.7331182982077658
+        },
+        "20261129": {
+          "mlp_pretrained": 0.6584720003813985,
+          "mlp_finetuned": 0.6713813135806365,
+          "fomaml_pretrained": 0.6723293115961465,
+          "fomaml_finetuned": 0.6689184097606763,
+          "actor_quarter_support": 0.7331182982077658
+        }
+      },
+      "mean_seed_object_metrics": {
+        "mlp_pretrained": 0.6611030660808249,
+        "mlp_finetuned": 0.6720859934565906,
+        "fomaml_pretrained": 0.6792051532905902,
+        "fomaml_finetuned": 0.6693608879181899,
+        "actor_quarter_support": 0.7331182982077658
+      },
+      "paired_object_bootstrap_after_averaging_seeds": {
+        "fomaml_pretrained_minus_fomaml_finetuned": {
+          "mean": 0.00984426537240021,
+          "ci95": [
+            -0.00357689727440124,
+            0.024777170652143844
+          ],
+          "objects_improved": 25
+        },
+        "mlp_finetuned_minus_fomaml_finetuned": {
+          "mean": 0.0027251055384005544,
+          "ci95": [
+            -0.0008475241969237077,
+            0.006157880503935924
+          ],
+          "objects_improved": 43
+        },
+        "mlp_pretrained_minus_fomaml_finetuned": {
+          "mean": -0.008257821837365162,
+          "ci95": [
+            -0.020554579021650234,
+            0.006131771725277102
+          ],
+          "objects_improved": 22
+        }
+      }
+    },
+    "5": {
+      "object_count": 63,
+      "seed_means": {
+        "20261127": {
+          "mlp_pretrained": 0.6572443704903461,
+          "mlp_finetuned": 0.64935817852041,
+          "fomaml_pretrained": 0.6811650787562957,
+          "fomaml_finetuned": 0.6492482858404316,
+          "actor_quarter_support": 0.7254753890588783
+        },
+        "20261128": {
+          "mlp_pretrained": 0.6675928273707298,
+          "mlp_finetuned": 0.6484868062611129,
+          "fomaml_pretrained": 0.6841210695193284,
+          "fomaml_finetuned": 0.653348669618005,
+          "actor_quarter_support": 0.7254753890588783
+        },
+        "20261129": {
+          "mlp_pretrained": 0.6584720003813985,
+          "mlp_finetuned": 0.6499702516447304,
+          "fomaml_pretrained": 0.6723293115961465,
+          "fomaml_finetuned": 0.6524780699954963,
+          "actor_quarter_support": 0.7254753890588783
+        }
+      },
+      "mean_seed_object_metrics": {
+        "mlp_pretrained": 0.6611030660808249,
+        "mlp_finetuned": 0.6492717454754175,
+        "fomaml_pretrained": 0.6792051532905902,
+        "fomaml_finetuned": 0.6516916751513111,
+        "actor_quarter_support": 0.7254753890588783
+      },
+      "paired_object_bootstrap_after_averaging_seeds": {
+        "fomaml_pretrained_minus_fomaml_finetuned": {
+          "mean": 0.027513478139279252,
+          "ci95": [
+            0.01335854228761496,
+            0.04239156734804061
+          ],
+          "objects_improved": 40
+        },
+        "mlp_finetuned_minus_fomaml_finetuned": {
+          "mean": -0.0024199296758932627,
+          "ci95": [
+            -0.0059150419317599255,
+            0.0008708377756857694
+          ],
+          "objects_improved": 31
+        },
+        "mlp_pretrained_minus_fomaml_finetuned": {
+          "mean": 0.00941139092951388,
+          "ci95": [
+            -0.003729956505711579,
+            0.024250121204210367
+          ],
+          "objects_improved": 29
+        }
+      }
+    }
+  },
+  "status": "exploratory; same 63 objects previously used for model/target exploration"
+}
